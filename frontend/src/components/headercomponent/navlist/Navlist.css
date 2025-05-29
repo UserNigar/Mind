@@ -1,0 +1,28 @@
+.navlist {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 20px;
+  background-color: white;
+}
+
+.navlist-item a {
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+}
+
+/* Dark mode üçün */
+
+.navlist-dark {
+  background-color: #222;
+}
+
+.navlist-dark .navlist-item a {
+  color: #ddd;
+}
+
+/* Hover effektləri (hər iki rejim üçün) */
+.navlist-item a:hover {
+  text-decoration: underline;
+}
