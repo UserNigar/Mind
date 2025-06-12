@@ -1,10 +1,10 @@
 import React from 'react'
 import Navbar from '../navbar/Navbar'
 
-const Header = () => {
+const Header = ({ darkMode, setDarkMode }) => {
   return (
     <div>
-        <Navbar/>
+        <Navbar darkMode={darkMode} setDarkMode={setDarkMode}/>
     </div>
   )
 }

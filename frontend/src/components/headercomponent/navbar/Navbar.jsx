@@ -5,13 +5,15 @@ import "./Navbar.css"
 import UserBtn from '../loginicon/UserBtn'
 import SideBar from '../sidebar/Sidebar'
 import Wrapper from '../wrapper/Wrapper'
+import CustomizedSwitch from '../../sidebarcomp/Nightbtn/Night'
 
-const Navbar = () => {
+const Navbar = ({ darkMode, setDarkMode }) => {
   return (
     <div className='navbar'>
         <Logo/>
-        <Navlist/>
-        <Wrapper/>
+      <Navlist darkMode={darkMode} />
+          {/* <CustomizedSwitch darkMode={darkMode} setDarkMode={setDarkMode} /> */}
+        <Wrapper  darkMode={darkMode} setDarkMode={setDarkMode}/>
 
     </div>
   )

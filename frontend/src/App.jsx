@@ -1,38 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout.jsx';
-import Navlist from './components/headercomponent/navlist/Navlist.jsx';
 import './App.css';
 import Home from './components/pages/Home.jsx';
-import CustomizedSwitch from './components/sidebarcomp/Nightbtn/Night.jsx';
+import RegisterForm from './components/pages/register/Register.jsx';
+import Login from './components/pages/login/Login.jsx';
+import UserProfile from './components/pages/UserProfile/UserProfile.jsx';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
 
-
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Layout />,
-      children:[
-        {
-          path:"/",
-          element:<Home/>
-
-          
-        }
-      ]
-    },
-    
-  ]);
-
   return (
-<>
-    <RouterProvider router={router}>
-      <CustomizedSwitch darkMode={darkMode} setDarkMode={setDarkMode} />
-      <Navlist darkMode={darkMode} />
-     </RouterProvider>
-</>
+    <Routes>
+      <Route
+        path="/"
+        element={<Layout darkMode={darkMode} setDarkMode={setDarkMode} />}
+      >
+        <Route index element={<Home />} />
+        <Route path="register" element={<RegisterForm />} />
+        <Route path="profile" element={<UserProfile />} />
+        <Route path="login" element={<Login />} /> {/* 🔹 Login route-u əlavə olundu */}
+      </Route>
+    </Routes>
   );
 }
 

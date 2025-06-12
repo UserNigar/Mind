@@ -1,14 +1,16 @@
-import React from 'react'
-import Header from '../headercomponent/header/Header'
-import { Outlet } from 'react-router'
+import React from 'react';
+import Header from '../headercomponent/header/Header';
+import { Outlet } from 'react-router';
+import Footer from '../footer/Footer';
 
-const Layout = () => {
+const Layout = ({ darkMode, setDarkMode }) => {
   return (
     <div>
-        <Header/>
-        <Outlet/>
+      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+      <Outlet />
+      {/* <Footer/> */}
     </div>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;

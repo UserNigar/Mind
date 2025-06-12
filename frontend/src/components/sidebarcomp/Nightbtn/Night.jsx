@@ -71,7 +71,7 @@ export default function CustomizedSwitch({ darkMode, setDarkMode }) {
         control={
           <MaterialUISwitch
             checked={darkMode}
-            // onChange={() => setDarkMode(prev => !prev)}
+            onChange={() => setDarkMode(prev => !prev)}
 
           />
         }

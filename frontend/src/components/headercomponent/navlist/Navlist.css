@@ -2,21 +2,18 @@
   list-style: none;
   padding: 0;
   display: flex;
-  gap: 20px;
-  background-color: white;
+  gap: 60px;
 }
 
 .navlist-item a {
   text-decoration: none;
   color: black;
+  font-size: 53px;
   font-weight: 500;
 }
 
-/* Dark mode üçün */
 
-.navlist-dark {
-  background-color: #222;
-}
+
 
 .navlist-dark .navlist-item a {
   color: #ddd;

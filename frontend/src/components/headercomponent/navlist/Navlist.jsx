@@ -1,15 +1,15 @@
-import { Link } from 'react-router-dom'
-import React from 'react'
-import "./Navlist.css"
+import { Link } from 'react-router-dom';  // react-router-dom olmalıdır, yoxsa import xəta verər
+import React from 'react';
+import "./Navlist.css";
 
-const Navlist = () => {
+const Navlist = ({ darkMode }) => {
   return (
-    <ul className='navlist'>
+    <ul className={darkMode ? 'navlist navlist-dark' : 'navlist'}>
         <li className='navlist-item'><Link to={"/"}>Home</Link></li>
         <li className='navlist-item'><Link to={"/services"}>Services</Link></li>
         <li className='navlist-item'><Link to={"/about"}>About Us</Link></li>
     </ul>
-  )
+  );
 }
 
-export default Navlist
+export default Navlist;

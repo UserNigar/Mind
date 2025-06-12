@@ -11,137 +11,55 @@ import {
   ListItemText
 } from '@mui/material';
 
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 
-import './Sidebar.css';
-import CustomSwitch from '../../sidebarcomp/Nightbtn/Night';
+import CustomizedSwitch from '../../sidebarcomp/Nightbtn/Night';
 
-export default function SideBar() {
+export default function SideBar({ darkMode, setDarkMode }) {
   const [open, setOpen] = useState(false);
 
-  const openDrawer = () => {
-    setOpen(true);
-  };
-
-  const closeDrawer = () => {
-    setOpen(false);
+  const toggleDrawer = (state) => () => {
+    setOpen(state);
   };
 
   return (
     <div>
-      {/* Açma düyməsi */}
-      <Button onClick={openDrawer} className="sidebar-btn">
-        <MenuIcon sx={{ fontSize: 50, color: 'black' }} />
+      <Button onClick={toggleDrawer(true)} className="sidebar-btn">
+        <MenuIcon sx={{ fontSize: 70, color: darkMode ? 'white' : 'black' }} />
       </Button>
-
-      {/* Çəkilən menyu */}
       <SwipeableDrawer
         anchor="left"
         open={open}
-        onClose={closeDrawer}
-        onOpen={openDrawer}
+        onClose={toggleDrawer(false)}
+        onOpen={toggleDrawer(true)}
       >
-        {/* Menyu siyahısı */}
-        <Box sx={{ width: 280 }} role="presentation">
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton onClick={closeDrawer}>
-                <ListItemIcon>
-                  <InboxIcon sx={{ fontSize: 30 }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Inbox"
-                  primaryTypographyProps={{ fontSize: 22 }}
-                />
-              </ListItemButton>
-            </ListItem>
+        <Box
+          sx={{
+            width: 280,
+            backgroundColor: darkMode ? '#121212' : '#fff',
+            color: darkMode ? 'white' : 'black',
+            height: '100%'
+          }}
+          role="presentation"
+        >
 
-            <ListItem disablePadding>
-              <ListItemButton onClick={closeDrawer}>
-                <ListItemIcon>
-                  <MailIcon sx={{ fontSize: 30 }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Starred"
-                  primaryTypographyProps={{ fontSize: 22 }}
-                />
-              </ListItemButton>
-            </ListItem>
 
-            <ListItem disablePadding>
-              <ListItemButton onClick={closeDrawer}>
-                <ListItemIcon>
-                  <InboxIcon sx={{ fontSize: 30 }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Send email"
-                  primaryTypographyProps={{ fontSize: 22 }}
-                />
-              </ListItemButton>
-            </ListItem>
-
-            <ListItem disablePadding>
-              <ListItemButton onClick={closeDrawer}>
-                <ListItemIcon>
-                  <MailIcon sx={{ fontSize: 30 }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Drafts"
-                  primaryTypographyProps={{ fontSize: 22 }}
-                />
-              </ListItemButton>
-            </ListItem>
-          </List>
-
-          <Divider />
+          <Divider sx={{ 
+            backgroundColor: darkMode ? 'rgba(255,255,255,0.2)' 
+            : 'rgba(0,0,0,0.1)' }} />
 
           <List>
-            <ListItem disablePadding>
-              <ListItemButton onClick={closeDrawer}>
-                <ListItemIcon>
-                  <InboxIcon sx={{ fontSize: 30 }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary="All mail"
-                  primaryTypographyProps={{ fontSize: 22 }}
-                />
-              </ListItemButton>
+            <ListItem>
+              jbvjhbgk
             </ListItem>
-
-            <ListItem disablePadding>
-              <ListItemButton onClick={closeDrawer}>
-                <ListItemIcon>
-                  <MailIcon sx={{ fontSize: 30 }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Trash"
-                  primaryTypographyProps={{ fontSize: 22 }}
-                />
-              </ListItemButton>
-            </ListItem>
-
-            <ListItem disablePadding>
-              <ListItemButton onClick={closeDrawer}>
-                <ListItemIcon>
-                  <InboxIcon sx={{ fontSize: 30 }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Spam"
-                  primaryTypographyProps={{ fontSize: 22 }}
-                />
-              </ListItemButton>
-            </ListItem>
-
-            {/* Burada drawer bağlanmasın deyə onClick yoxdur */}
             <ListItem disablePadding>
               <ListItemButton>
                 <ListItemIcon>
-                  <CustomSwitch />
+                  <CustomizedSwitch darkMode={darkMode} setDarkMode={setDarkMode} />
                 </ListItemIcon>
                 <ListItemText
-                  primaryTypographyProps={{ fontSize: 22 }}
+                  primary="Dark Mode"
+                  primaryTypographyProps={{ fontSize: 22, color: darkMode ? 'white' : 'black' }}
                 />
               </ListItemButton>
             </ListItem>
