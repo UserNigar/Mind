@@ -27,6 +27,15 @@ const blogSchema = new Schema({
 const categorySchema = new Schema({
     name:String,
 },{versionKey:false})
+const messageSchema = new mongoose.Schema({
+  from: { type: String, required: true },
+  to: { type: String, required: true },
+  text: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now }
+});
+
+export const messageModel = mongoose.model("Message", messageSchema);
+
 
 
 export const userModel = model('users',userSchema)

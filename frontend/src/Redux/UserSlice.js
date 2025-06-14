@@ -17,6 +17,8 @@ export const getUsers = createAsyncThunk('users/getUsers', async () => {
   return res.data;
 });
 
+
+
 // İstifadəçi yaratmaq
 export const createUsers = createAsyncThunk('users/add', async (user, { rejectWithValue }) => {
   try {
@@ -46,6 +48,28 @@ export const loginUser = createAsyncThunk('users/login', async (user, { rejectWi
     return rejectWithValue(error.message || 'Giriş yapılırken hata oluştu.');
   }
 });
+
+export const updateUser = createAsyncThunk(
+  'users/updateUser',
+  async ({ id, updatedData }, { getState, rejectWithValue }) => {
+    try {
+      const { token } = getState().users;  // tokeni store-dan götürürük
+
+      const res = await axios.patch(`${base_URL}/${id}`, updatedData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,  // token burada əlavə olunur
+        },
+      });
+      return res.data.user;  // sən serverdə cavabda `user` olaraq göndərirsən
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || 'İstifadəçi yenilənərkən xəta baş verdi'
+      );
+    }
+  }
+);
+
 
 // Slice
 export const userSlice = createSlice({
@@ -114,7 +138,34 @@ export const userSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
-      });
+      })
+      // 🔄 updateUser
+.addCase(updateUser.pending, (state) => {
+  state.status = 'loading';
+})
+.addCase(updateUser.fulfilled, (state, action) => {
+  state.status = 'succeeded';
+
+  // Əgər istifadəçi siyahısında varsa onu da yenilə
+  const updated = action.payload;
+  const index = state.users.findIndex((user) => user._id === updated._id);
+  if (index !== -1) {
+    state.users[index] = updated;
+  }
+
+  // Əgər yenilənən istifadəçi hal-hazırda login olmuşdursa
+  if (state.currentUser?._id === updated._id) {
+    state.currentUser = updated;
+    localStorage.setItem('currentUser', JSON.stringify(updated));
+  }
+
+  state.error = null;
+})
+.addCase(updateUser.rejected, (state, action) => {
+  state.status = 'failed';
+  state.error = action.payload;
+});
+      
   },
 });
 

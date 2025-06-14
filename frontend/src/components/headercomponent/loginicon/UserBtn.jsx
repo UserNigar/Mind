@@ -44,6 +44,9 @@ const UserBtn = () => {
               <MenuItem sx={{ fontSize: 33 }} component={Link} to="/profile">
                 Profile
               </MenuItem>
+               <MenuItem sx={{ fontSize: 33 }} component={Link} to="/chat">
+                chat
+              </MenuItem>
             </>
           )}
         </Menu>

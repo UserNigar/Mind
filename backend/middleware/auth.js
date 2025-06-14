@@ -8,11 +8,11 @@ export const authMiddleware = (req, res, next) => {
 
   const token = authHeader.split(" ")[1];
 
-  jwt.verify(token, "nodejs", (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ message: "Invalid or expired token" });
-    }
-    req.user = decoded.user; // burada user id və username var
+ try {
+    const decoded = jwt.verify(token, 'nodejs');  // secret düzgün olmalıdır
+    req.user = decoded.user;
     next();
-  });
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
 };

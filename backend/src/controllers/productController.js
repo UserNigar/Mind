@@ -1,6 +1,7 @@
 import { userModel } from "../model/productModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { updateProfilePhoto } from "../../multer.js";
 
 export const getUsersService = async (req, res) => {
   try {
@@ -58,11 +59,11 @@ export const loginService = async (req, res) => {
       return res.status(400).json({ message: "Incorrect password" });
     }
 
-    // JWT yarat – müddət 1 dəqiqə (60 saniyə)
+    // JWT yarat – müddət 20 gün (20d)
     const token = jwt.sign(
       { user: { id: user._id, username: user.username } },
       "nodejs",
-      { expiresIn: "20d" }
+      { expiresIn: "1d" }
     );
 
     const { password: _, ...userData } = user._doc;
@@ -78,3 +79,53 @@ export const loginService = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getUserId = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await userModel.findById(id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User tapılmadı" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server xətası" });
+  }
+};  // <-- burada bağlayıcı əlavə edildi
+
+export const updatePersonalImf = [
+  updateProfilePhoto.single("photo"),
+  async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const updateData = {};
+
+      // Yeni foto varsa əlavə et
+      if (req.file) {
+        updateData.photo = req.file.filename;
+      }
+
+      // İcazə verilən sahələri yoxla və əlavə et
+      const allowedFields = ["email", "name", "surname", "username"];
+      for (const field of allowedFields) {
+        if (req.body[field]) {
+          updateData[field] = req.body[field];
+        }
+      }
+
+      // DB-də yenilə
+      const updatedUser = await userModel.findByIdAndUpdate(id, updateData, { new: true }).select("-password");
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json({ message: "Data updated successfully", user: updatedUser });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Update failed" });
+    }
+  }
+];  // <-- burada da bağlayıcı əlavə edildi
