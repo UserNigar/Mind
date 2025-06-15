@@ -1,65 +1,53 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";  // react-router link
 import "./Footer.css";
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import ControlPointIcon from '@mui/icons-material/ControlPoint';
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+
+const navItems = [
+  { label: "Home", Icon: HomeOutlinedIcon, to: "/" },
+  { label: "Profile", Icon: PersonOutlineIcon, to: "/profile" },
+  { label: "Share", Icon: ControlPointIcon, to: "/share" },
+  { label: "Messages", Icon: ChatBubbleOutlineIcon, to: "/chat" },
+  { label: "Settings", Icon: SettingsOutlinedIcon, to: "/settings" },
+];
 
 const Footer = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const iconSize = 80;
 
   return (
-    <div className="navigation">
+    <nav className="navigation" aria-label="Footer navigation">
       <ul>
-        <li className={`list ${activeIndex === 0 ? "active" : ""}`} onClick={() => setActiveIndex(0)}>
-          <a href="#">
-            <span className="icon">
-              <HomeOutlinedIcon sx={{fontSize:90}} />
-            </span>
-            <span className="text">Home</span>
-          </a>
-        </li>
+        {navItems.map(({ label, Icon, to }, index) => (
+          <li
+            key={label}
+            className={`list ${activeIndex === index ? "active" : ""}`}
+          >
+            <Link
+              to={to}
+              onClick={() => setActiveIndex(index)}
+              aria-current={activeIndex === index ? "page" : undefined}
+              className="nav-button"
+            >
+              <span className="icon">
+                <Icon sx={{ fontSize: iconSize }} />
+              </span>
+              <span className="text">{label}</span>
+            </Link>
+          </li>
+        ))}
 
-        <li className={`list ${activeIndex === 1 ? "active" : ""}`} onClick={() => setActiveIndex(1)}>
-          <a href="#">
-            <span className="icon">
-              <PersonOutlineIcon  sx={{fontSize:90}}/>
-            </span>
-            <span className="text">Profile</span>
-          </a>
-        </li>
-
-        <li className={`list ${activeIndex === 2 ? "active" : ""}`} onClick={() => setActiveIndex(2)}>
-          <a href="#">
-            <span className="icon">
-              <ChatBubbleOutlineIcon  sx={{fontSize:90}}/>
-            </span>
-            <span className="text">Messages</span>
-          </a>
-        </li>
-
-        <li className={`list ${activeIndex === 3 ? "active" : ""}`} onClick={() => setActiveIndex(3)}>
-          <a href="#">
-            <span className="icon">
-              <ImageOutlinedIcon sx={{fontSize:90}} />
-            </span>
-            <span className="text">Photos</span>
-          </a>
-        </li>
-
-        <li className={`list ${activeIndex === 4 ? "active" : ""}`} onClick={() => setActiveIndex(4)}>
-          <a href="#">
-            <span className="icon">
-              <SettingsOutlinedIcon  sx={{fontSize:90}}/>
-            </span>
-            <span className="text">Settings</span>
-          </a>
-        </li>
-
-        <div className="indicator" style={{ transform: `translateX(${activeIndex * 100}%)` }}></div>
+        <div
+          className="indicator"
+          style={{ transform: `translateX(${activeIndex * 100}%)` }}
+          aria-hidden="true"
+        />
       </ul>
-    </div>
+    </nav>
   );
 };
 

@@ -1,5 +1,5 @@
-// RegisterForm.jsx
 import React, { useEffect, useState } from 'react';
+// import './Register.scss'; // import global SCSS
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createUsers, getUsers } from '../../../Redux/UserSlice';
@@ -59,7 +59,7 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="card register">
+    <div className="card-register">
       <h2>Register</h2>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <input

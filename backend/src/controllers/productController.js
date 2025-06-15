@@ -1,4 +1,4 @@
-import { messageModel, userModel } from "../model/productModel.js";
+import { ArticleModel, messageModel, userModel } from "../model/productModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { updateProfilePhoto } from "../../multer.js";
@@ -141,26 +141,45 @@ export const saveMessage = async (req, res) => {
   }
 };
 
-// İki istifadəçi arasındakı mesajları götür
+
 export const getMessages = async (req, res) => {
+  const { from, to } = req.query;
+
   try {
-    // Frontend-in göndərdiyi query parametrlərdən istifadə edirik
-    const { from, to } = req.query;
-
-    if (!from || !to) {
-      return res.status(400).json({ error: "from və to parametrləri lazımdır" });
-    }
-
     const messages = await messageModel.find({
       $or: [
-        { from: from, to: to },
-        { from: to, to: from }
+        { from, to },
+        { from: to, to: from } 
       ]
-    }).sort({ createdAt: 1 }); // createdAt timestamps sayəsində avtomatik əlavə olunur
+    });
 
-    res.json(messages);
+    res.status(200).json(messages);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Mesajlar tapılmadı" });
+    console.error("Mesajlar yüklənə bilmədi:", err);
+    res.status(500).json({ message: "Mesajları yükləmək mümkün olmadı" });
+  }
+};
+
+export const createArticle = async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    const userId = req.user._id; // tokenlə gələn user
+
+    const newArticle = new ArticleModel({ title, content, user: userId });
+    await newArticle.save();
+
+    res.status(201).json(newArticle);
+  } catch (err) {
+    res.status(500).json({ message: "Məqalə əlavə edilə bilmədi" });
+  }
+};
+
+// Bütün məqalələri gətir
+export const getAllArticles = async (req, res) => {
+  try {
+    const articles = await ArticleModel.find().populate("user", "username photo");
+    res.status(200).json(articles);
+  } catch (err) {
+    res.status(500).json({ message: "Məqalələr gətirilə bilmədi" });
   }
 };

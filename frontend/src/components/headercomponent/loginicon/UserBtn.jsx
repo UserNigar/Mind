@@ -4,11 +4,14 @@ import Menu from '@mui/joy/Menu';
 import MenuButton from '@mui/joy/MenuButton';
 import MenuItem from '@mui/joy/MenuItem';
 import Person from '@mui/icons-material/Person';
-import { Link } from 'react-router-dom';
-import './UserBtn.css';
+import { Link as RouterLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../../../Redux/UserSlice';
 
+// ✅ Əlavə: Link wrapper - `data-*` propların ötürülməsinin qarşısını alır
+const LinkBehavior = React.forwardRef(function LinkBehavior(props, ref) {
+  return <RouterLink ref={ref} {...props} />;
+});
 
 const UserBtn = () => {
   const dispatch = useDispatch();
@@ -22,17 +25,25 @@ const UserBtn = () => {
     <div>
       <Dropdown>
         <MenuButton sx={{ width: 230, height: 70, fontSize: 30 }}>
-          <Person sx={{ fontSize: 45 }} />
+          <Person sx={{ fontSize: 45, mr: 1 }} />
           {currentUser ? currentUser.username : 'Sign in...'}
         </MenuButton>
 
         <Menu>
           {!currentUser ? (
             <>
-              <MenuItem sx={{ fontSize: 33 }} component={Link} to="/register">
+              <MenuItem
+                sx={{ fontSize: 33 }}
+                component={LinkBehavior}
+                to="/register"
+              >
                 Sign up
               </MenuItem>
-              <MenuItem sx={{ fontSize: 33 }} component={Link} to="/login">
+              <MenuItem
+                sx={{ fontSize: 33 }}
+                component={LinkBehavior}
+                to="/login"
+              >
                 Log in
               </MenuItem>
             </>
@@ -41,11 +52,19 @@ const UserBtn = () => {
               <MenuItem sx={{ fontSize: 33 }} onClick={handleLogout}>
                 Logout
               </MenuItem>
-              <MenuItem sx={{ fontSize: 33 }} component={Link} to="/profile">
+              <MenuItem
+                sx={{ fontSize: 33 }}
+                component={LinkBehavior}
+                to="/profile"
+              >
                 Profile
               </MenuItem>
-               <MenuItem sx={{ fontSize: 33 }} component={Link} to="/chat">
-                chat
+              <MenuItem
+                sx={{ fontSize: 33 }}
+                component={LinkBehavior}
+                to="/chat"
+              >
+                Chat
               </MenuItem>
             </>
           )}

@@ -8,7 +8,7 @@ const Layout = ({ darkMode, setDarkMode }) => {
     <div>
       <Header darkMode={darkMode} setDarkMode={setDarkMode} />
       <Outlet />
-      {/* <Footer/> */}
+      <Footer/>
     </div>
   );
 };

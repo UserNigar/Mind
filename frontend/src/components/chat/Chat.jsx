@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
 import { getUsers } from "../../Redux/UserSlice";
 import axios from "axios";
+import "./Chat.css";
 
 const Chat = () => {
   const dispatch = useDispatch();
@@ -22,7 +23,6 @@ const Chat = () => {
     dispatch(getUsers());
   }, [dispatch]);
 
-  
   // socket.io qoşulması
   useEffect(() => {
     if (!currentUser) return;
@@ -51,12 +51,12 @@ const Chat = () => {
   useEffect(() => {
     if (!allUsers) return;
 
-    const usersWithoutCurrent = allUsers
-      .map((user) => user.username)
-      .filter((u) => u !== currentUser?.username);
+    const usersWithoutCurrent = allUsers.filter(
+      (user) => user.username !== currentUser?.username
+    );
 
-    const filtered = usersWithoutCurrent.filter((u) =>
-      u.toLowerCase().includes(searchName.toLowerCase())
+    const filtered = usersWithoutCurrent.filter((user) =>
+      user.username.toLowerCase().includes(searchName.toLowerCase())
     );
     setFilteredUsers(filtered);
   }, [searchName, allUsers, currentUser]);
@@ -66,14 +66,14 @@ const Chat = () => {
     const fetchMessages = async () => {
       if (!selectedUser || !currentUser) return;
 
-      const token = localStorage.getItem("token");  // Tokeni localStorage-dan götürürük
-      
+      const token = localStorage.getItem("token"); // Tokeni localStorage-dan götürürük
+  console.log("Token:", token); // buraya bax!
       try {
         const res = await axios.get(
           `http://localhost:5050/api/users/messages?from=${currentUser.username}&to=${selectedUser}`,
           {
             headers: {
-              Authorization: `Bearer ${token}`,  // Tokeni header-a əlavə edirik
+              Authorization: `Bearer ${token}`, // Tokeni header-a əlavə edirik
             },
           }
         );
@@ -122,77 +122,66 @@ const Chat = () => {
   if (!currentUser) return <p>Zəhmət olmasa daxil olun</p>;
 
   return (
-    <div style={{ display: "flex", gap: "20px", padding: "20px" }}>
-      <div style={{ width: "250px" }}>
+    <div className="chat-container">
+      <div className="user-list-container">
         <h3>İstifadəçilər</h3>
         <input
           placeholder="Axtar..."
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
-          style={{ width: "100%", marginBottom: "10px", padding: "5px" }}
+          className="search-input"
         />
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <ul className="user-list">
           {filteredUsers.map((user) => (
             <li
-              key={user}
-              style={{
-                cursor: "pointer",
-                fontWeight: user === selectedUser ? "bold" : "normal",
-                color: onlineUsers.includes(user) ? "green" : "gray",
-                marginBottom: "5px",
-              }}
+              key={user.username}
+              className={`user-item ${
+                user.username === selectedUser ? "selected" : ""
+              } ${onlineUsers.includes(user.username) ? "online" : "offline"}`}
               onClick={() => {
-                setSelectedUser(user);
+                setSelectedUser(user.username);
                 setMessages([]);
               }}
             >
-              {user} {onlineUsers.includes(user) && "🟢"}
+              <img
+                src={`http://localhost:5050/photos/${user.photo}`}
+                alt={`${user.username} profil`}
+                className="profile-pic"
+              />
+              <span className="username">{user.username}</span>
+              {onlineUsers.includes(user.username) && (
+                <span className="online-indicator">🟢</span>
+              )}
             </li>
           ))}
         </ul>
       </div>
 
-      <div style={{ flex: 1 }}>
+      <div className="chat-section">
         <h3>{selectedUser ? `${selectedUser} ilə söhbət` : "İstifadəçi seçin"}</h3>
-        <div
-          style={{
-            border: "1px solid #ccc",
-            height: "300px",
-            padding: "10px",
-            overflowY: "auto",
-            marginBottom: "10px",
-            background: "#f9f9f9",
-          }}
-        >
+        <div className="messages-box">
           {messages.map((m, i) => (
             <div
               key={i}
-              style={{
-                textAlign: m.from === currentUser.username ? "right" : "left",
-                marginBottom: "8px",
-              }}
+              className={`message ${
+                m.from === currentUser.username ? "sent" : "received"
+              }`}
             >
-              <span
-                style={{
-                  background: m.from === currentUser.username ? "#d1ffd1" : "#e6e6e6",
-                  padding: "6px 10px",
-                  borderRadius: "8px",
-                  display: "inline-block",
-                }}
-              >
+              <span className="message-content">
                 <b>{m.from}: </b> {m.text}
               </span>
             </div>
           ))}
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div className="message-input-section">
           <input
             type="text"
             ref={messageInputRef}
             placeholder="Mesaj yaz..."
-            style={{ flex: 1, padding: "8px" }}
+            className="message-input"
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
-          <button onClick={sendMessage} style={{ padding: "8px 16px" }}>
+          <button onClick={sendMessage} className="send-button">
             Göndər
           </button>
         </div>
