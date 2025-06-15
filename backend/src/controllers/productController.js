@@ -1,4 +1,4 @@
-import { userModel } from "../model/productModel.js";
+import { messageModel, userModel } from "../model/productModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { updateProfilePhoto } from "../../multer.js";
@@ -129,3 +129,38 @@ export const updatePersonalImf = [
     }
   }
 ];  // <-- burada da bağlayıcı əlavə edildi
+export const saveMessage = async (req, res) => {
+  try {
+    const { from, to, text } = req.body;
+    const message = new messageModel({ from, to, text });
+    await message.save();
+    res.status(201).json({ message: "Mesaj yadda saxlanıldı" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server xətası" });
+  }
+};
+
+// İki istifadəçi arasındakı mesajları götür
+export const getMessages = async (req, res) => {
+  try {
+    // Frontend-in göndərdiyi query parametrlərdən istifadə edirik
+    const { from, to } = req.query;
+
+    if (!from || !to) {
+      return res.status(400).json({ error: "from və to parametrləri lazımdır" });
+    }
+
+    const messages = await messageModel.find({
+      $or: [
+        { from: from, to: to },
+        { from: to, to: from }
+      ]
+    }).sort({ createdAt: 1 }); // createdAt timestamps sayəsində avtomatik əlavə olunur
+
+    res.json(messages);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Mesajlar tapılmadı" });
+  }
+};
