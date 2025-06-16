@@ -1,8 +1,9 @@
 import express from "express";
 import {
-    createArticle,
+  createArticle,
   getAllArticles,
   getMessages,
+  getUserArticles,
   getUserId,
   getUsersService,
   loginService,
@@ -12,7 +13,6 @@ import {
 } from "../controllers/productController.js";
 import { customizedMulter } from "../../multer.js";
 import { authMiddleware } from "../../middleware/auth.js";
-
 
 const appRouter = express.Router();
 
@@ -24,11 +24,16 @@ appRouter.post("/login", loginService);
 appRouter.get("/", getUsersService);
 appRouter.get("/messages", authMiddleware, getMessages);
 appRouter.post("/messages", saveMessage);
-appRouter.get("/:id", getUserId);
 appRouter.patch("/:id", authMiddleware, updatePersonalImf);
 
-// Məqalə paylaşma
-appRouter.post("/articles", authMiddleware, createArticle); // Məqalə paylaşmaq
-appRouter.get("/articles", getAllArticles); // Bütün məqalələri gətirmək
+// Məqalə paylaşma və göstərmə
+appRouter.post("/articles", authMiddleware, createArticle);
+appRouter.get("/articles", getAllArticles);
+
+// istifadəçinin öz məqalələri üçün
+appRouter.get("/my-articles", authMiddleware, getUserArticles);
+
+// İstifadəçi ID-yə görə məlumat alma - SONDA OLUR
+appRouter.get("/:id", getUserId);
 
 export default appRouter;

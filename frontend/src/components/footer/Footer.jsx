@@ -8,11 +8,11 @@ import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 const navItems = [
-  { label: "Home", Icon: HomeOutlinedIcon, to: "/" },
+  { label: "Home", Icon: HomeOutlinedIcon, to: "/article" },
   { label: "Profile", Icon: PersonOutlineIcon, to: "/profile" },
   { label: "Share", Icon: ControlPointIcon, to: "/share" },
   { label: "Messages", Icon: ChatBubbleOutlineIcon, to: "/chat" },
-  { label: "Settings", Icon: SettingsOutlinedIcon, to: "/settings" },
+  { label: "Settings", Icon: SettingsOutlinedIcon, to: "/myarticle" },
 ];
 
 const Footer = () => {

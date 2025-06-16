@@ -163,23 +163,48 @@ export const getMessages = async (req, res) => {
 export const createArticle = async (req, res) => {
   try {
     const { title, content } = req.body;
-    const userId = req.user._id; // tokenlə gələn user
+    const author = req.user.id; // token-dən gələn user id
 
-    const newArticle = new ArticleModel({ title, content, user: userId });
+    if (!title || !content) {
+      return res.status(400).json({ message: "Title və content tələb olunur" });
+    }
+
+    const newArticle = new ArticleModel({
+      title,
+      content,
+      author,
+    });
+
     await newArticle.save();
 
-    res.status(201).json(newArticle);
-  } catch (err) {
-    res.status(500).json({ message: "Məqalə əlavə edilə bilmədi" });
+    res.status(201).json({ message: "Məqalə əlavə edildi", article: newArticle });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server xətası" });
   }
 };
 
-// Bütün məqalələri gətir
 export const getAllArticles = async (req, res) => {
   try {
-    const articles = await ArticleModel.find().populate("user", "username photo");
+    const articles = await ArticleModel.find()
+      .populate("author", "username photo")  // burada "author" olmalıdır
+      .sort({ createdAt: -1 }); // istəyirsənsə, ən son əlavə olunanlar əvvəl görünsün
+
     res.status(200).json(articles);
   } catch (err) {
+    console.error("Məqalələr gətirilərkən xəta:", err);
     res.status(500).json({ message: "Məqalələr gətirilə bilmədi" });
+  }
+};
+
+export const getUserArticles = async (req, res) => {
+  try {
+    const userId = req.user.id; // authMiddleware-də token-dan istifadəçi id-si req.user-a əlavə olunmalıdır
+
+    const articles = await ArticleModel.find({ author: userId }).populate("author", "username photo");
+
+    res.status(200).json(articles);
+  } catch (err) {
+    res.status(500).json({ message: "İstifadəçinin məqalələri gətirilə bilmədi" });
   }
 };

@@ -20,15 +20,16 @@ const messageSchema = new mongoose.Schema({
   },
 });
 const articleSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
-  title: { type: String, required: true },
-  content: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
+  title: String,
+  content: String,
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users", // bu "userModel.js"-dəki modelin adıyla uyğun olmalıdır
+    required: true,
+  },
+}, { timestamps: true });
 
-export const ArticleModel = mongoose.model("articles", articleSchema);
-
-
+export const ArticleModel = mongoose.model("Article", articleSchema);
 
 export const messageModel = mongoose.model("messages", messageSchema);
 export const userModel = model('users',userSchema)
