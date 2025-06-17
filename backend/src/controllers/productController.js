@@ -208,3 +208,24 @@ export const getUserArticles = async (req, res) => {
     res.status(500).json({ message: "İstifadəçinin məqalələri gətirilə bilmədi" });
   }
 };
+
+export const deleteArticle = async (req, res) => {
+  try {
+    const article = await ArticleModel.findById(req.params.id);
+
+    if (!article) {
+      return res.status(404).json({ message: "Məqalə tapılmadı" });
+    }
+
+    // Yalnız həmin məqalənin sahibi silə bilsin
+    if (article.author.toString() !== req.user.id) {
+      return res.status(403).json({ message: "İcazə verilmir" });
+    }
+
+    await ArticleModel.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Məqalə silindi" });
+  } catch (err) {
+    console.error("Silinmə xətası:", err);
+    res.status(500).json({ message: "Server xətası" });
+  }
+};

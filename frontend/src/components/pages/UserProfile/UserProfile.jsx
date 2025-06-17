@@ -1,174 +1,109 @@
-import React, { useRef, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import toast from 'react-hot-toast';
-import { updateUser } from '../../../Redux/UserSlice';
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import images from "../../../assets/Illustration@2x.png"
+import "./UserProfile.scss";
+import { deleteArticle, fetchMyArticles } from "../../../Redux/ArticleSlice";
 
 const UserProfile = () => {
-  const currentUser = useSelector((state) => state.users.currentUser);
   const dispatch = useDispatch();
-  const photoInputRef = useRef(null);
+  const { myArticles, loading, error } = useSelector((state) => state.articles);
+  const currentUser = useSelector((state) => state.users.currentUser);
 
-  // Inline edit üçün state-lər
-  const [editMode, setEditMode] = useState({
-    username: false,
-    name: false,
-    surname: false,
-    email: false,
-  });
+  useEffect(() => {
+    if (currentUser) {
+      dispatch(fetchMyArticles());
+    }
+  }, [dispatch, currentUser]);
 
-  // Form məlumatları
-  const [formData, setFormData] = useState({
-    username: currentUser?.username || '',
-    name: currentUser?.name || '',
-    surname: currentUser?.surname || '',
-    email: currentUser?.email || '',
-  });
+  const handleDelete = (id) => {
+    if (window.confirm("Bu məqaləni silmək istədiyinizə əminsiniz?")) {
+      dispatch(deleteArticle(id));
+    }
+  };
 
-  if (!currentUser) {
+ if (!currentUser) {
     return (
-      <div className="card profile">
-        <h2>Profil</h2>
-        <p style={{ color: 'red' }}>Please login to view your profile.</p>
+     <>
+     <section id="userControl">
+      <div className="userControl">
+        <div className="imageinlogin">
+          <img src={images} alt="" />
+        </div>
+        <div className="usercontrol-text">
+          <h1>
+            hi
+          </h1>
+          <p>
+            dnxhwldinwl
+          </p>
+        </div>
       </div>
+     </section>
+     </>
     );
   }
 
-  // Şəkil dəyişmə funksiyası
-  const handlePhotoChange = () => {
-    const file = photoInputRef.current.files[0];
-    if (!file) {
-      toast.error('Zəhmət olmasa şəkil seçin!');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('photo', file);
-
-    dispatch(updateUser({ id: currentUser._id, updatedData: formData }))
-      .unwrap()
-      .then(() => {
-        toast.success('Şəkil uğurla yeniləndi');
-      })
-      .catch((error) => {
-        let message = 'Şəkil yenilənərkən xəta baş verdi';
-        if (typeof error === 'string') {
-          message = error;
-        } else if (error && typeof error.message === 'string') {
-          message = error.message;
-        }
-        toast.error(message);
-      });
-  };
-
-  // Edit düyməsinə basanda edit rejimini açır
-  const handleEditClick = (field) => {
-    setEditMode((prev) => ({ ...prev, [field]: true }));
-  };
-
-  // Dəyişiklik zamanı input dəyərlərini yadda saxlayır
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Dəyişiklikləri yadda saxla
-  const handleSave = (field) => {
-    const updatedData = { [field]: formData[field] };
-
-    dispatch(updateUser({ id: currentUser._id, updatedData }))
-      .unwrap()
-      .then(() => {
-        toast.success(`${field} uğurla yeniləndi`);
-        setEditMode((prev) => ({ ...prev, [field]: false }));
-      })
-      .catch((error) => {
-        let message = `${field} yenilənərkən xəta baş verdi`;
-        if (typeof error === 'string') {
-          message = error;
-        } else if (error && typeof error.message === 'string') {
-          message = error.message;
-        }
-        toast.error(message);
-      });
-  };
-
-  // Edit rejimini ləğv et və əvvəlki dəyəri bərpa et
-  const handleCancel = (field) => {
-    setFormData((prev) => ({ ...prev, [field]: currentUser[field] || '' }));
-    setEditMode((prev) => ({ ...prev, [field]: false }));
-  };
-
-  // Render üçün köməkçi komponent
-  const renderEditableField = (field, label) => (
-    <div className="border p-2 mb-3">
-      <p>{label}:</p>
-      {!editMode[field] ? (
-        <>
-          <h5 className="card-title">{formData[field] || '—'}</h5>
-          <button
-            className="btn btn-primary"
-            onClick={() => handleEditClick(field)}
-          >
-            Edit
-          </button>
-        </>
-      ) : (
-        <>
-          <input
-            type="text"
-            name={field}
-            value={formData[field]}
-            onChange={handleInputChange}
-            className="form-control mb-2"
-          />
-          <button
-            className="btn btn-success me-2"
-            onClick={() => handleSave(field)}
-          >
-            Save
-          </button>
-          <button
-            className="btn btn-secondary"
-            onClick={() => handleCancel(field)}
-          >
-            Cancel
-          </button>
-        </>
-      )}
-    </div>
-  );
-
   return (
-    <div className="container mt-5 page">
-      <h3>Personal Information</h3>
-      <div className="card bg-dark text-white p-3">
-        <img
-          src={`http://localhost:5050/photos/${currentUser.photo}`}
-          alt="Profile"
-          className="profile-photo"
-          style={{ width: '150px', height: '150px', borderRadius: '50%' }}
-        />
-        <input
-          type="file"
-          id="photoInp"
-          name="photo"
-          className="form-control mt-2"
-          ref={photoInputRef}
-        />
-        <button
-          className="btn btn-primary w-25 mt-2"
-          id="changePhotoBtn"
-          onClick={handlePhotoChange}
-        >
-          Change Photo
-        </button>
-
-        <div className="card-body">
-          {renderEditableField('username', 'Username')}
-          {renderEditableField('name', 'Name')}
-          {renderEditableField('surname', 'Surname')}
-          {renderEditableField('email', 'Email')}
+    <div className="container">
+      <div className="profile">
+        <h2>İstifadəçi Məlumatları</h2>
+        <div className="user-info">
+          <img
+            src={
+              currentUser.photo
+                ? `http://localhost:5050/photos/${currentUser.photo}`
+                : "/default-profile.png"
+            }
+            alt={currentUser.username}
+            className="user-photo"
+          />
+          <div>
+            <p><strong>İstifadəçi:</strong> {currentUser.username}</p>
+            <p><strong>Email:</strong> {currentUser.email}</p>
+          </div>
         </div>
+      </div>
+
+      <div className="articles">
+        <h2>Öz Məqalələrim</h2>
+        {loading ? (
+          <p>Yüklənir...</p>
+        ) : error ? (
+          <p className="error">{error}</p>
+        ) : myArticles.length === 0 ? (
+          <p>Heç bir məqaləniz yoxdur.</p>
+        ) : (
+          myArticles.map((article) => (
+            <div key={article._id} className="article-card">
+              <h3>{article.title}</h3>
+              <p>{article.content}</p>
+              <div className="article-footer">
+                <div className="author">
+                  <img
+                    src={
+                      article.author?.photo
+                        ? `http://localhost:5050/photos/${article.author.photo}`
+                        : "/default-profile.png"
+                    }
+                    alt={article.author?.username || "İstifadəçi"}
+                    className="author-photo"
+                  />
+                  <span>{article.author?.username || "İstifadəçi"}</span>
+                </div>
+                <button className="delete-button" onClick={() => handleDelete(article._id)}>
+                  Sil
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="new-article">
+        <h2>Yeni Məqalə Yarat</h2>
+        <input type="text" placeholder="Məqalə başlığı" />
+        <textarea placeholder="Məqalə məzmunu"></textarea>
+        <button className="submit-button">Paylaş</button>
       </div>
     </div>
   );

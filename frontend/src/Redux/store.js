@@ -1,9 +1,11 @@
 // store.js
 import { configureStore } from '@reduxjs/toolkit';
 import userReducer from './UserSlice';
+import articleReducer from "./ArticleSlice"; // SƏHV: sən burada `articles` import etmisən amma `articleReducer` istifadə edirsən
 
 export const store = configureStore({
   reducer: {
-    users: userReducer
+    users: userReducer,
+    articles: articleReducer, // burada `articleReducer` istifadə etdiyinə görə importda da o olmalıdır
   },
 });

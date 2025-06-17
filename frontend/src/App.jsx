@@ -6,19 +6,18 @@ import Home from './components/pages/Home.jsx';
 import RegisterForm from './components/pages/register/Register.jsx';
 import Login from './components/pages/login/Login.jsx';
 import UserProfile from './components/pages/UserProfile/UserProfile.jsx';
-import { Toaster } from 'react-hot-toast'; // 🔸 toast əlavə edildi
+import { Toaster } from 'react-hot-toast'; 
 import Chat from './components/chat/Chat.jsx';
 import Share from './components/pages/share/Share.jsx';
 import ArticleList from './components/pages/articleList/ArticleList.jsx';
-import MyArticles from './components/pages/userArticle/MyArticles.jsx';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
 
   return (
     <>
-      <Toaster position="top-center" reverseOrder={false} /> {/* ✅ toast UI burada göstərilir */}
-      <Routes>
+      <Toaster position="top-center" reverseOrder={false} />
+            <Routes>
         <Route
           path="/"
           element={<Layout darkMode={darkMode} setDarkMode={setDarkMode} />}
@@ -30,7 +29,6 @@ function App() {
            <Route path="chat" element={<Chat />} />
             <Route path="share" element={<Share />} />
              <Route path="article" element={<ArticleList />} />
-              <Route path="myarticle" element={<MyArticles />} />
         </Route>
       </Routes>
     </>

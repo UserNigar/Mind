@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createArticle,
+  deleteArticle,
   getAllArticles,
   getMessages,
   getUserArticles,
@@ -32,6 +33,8 @@ appRouter.get("/articles", getAllArticles);
 
 // istifadəçinin öz məqalələri üçün
 appRouter.get("/my-articles", authMiddleware, getUserArticles);
+appRouter.delete("/articles/:id", authMiddleware, deleteArticle);
+
 
 // İstifadəçi ID-yə görə məlumat alma - SONDA OLUR
 appRouter.get("/:id", getUserId);
