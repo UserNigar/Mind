@@ -1,63 +1,180 @@
+
+
+
 .container {
   max-width: 600px;
   margin: 0 auto;
-}
 
-.profile {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #ccc;
-}
+  .profile {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ccc;
 
-.user-info {
+    .user-info {
+      display: flex;
+      align-items: center;
+
+      .user-photo {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin-right: 15px;
+      }
+
+      p {
+        margin: 5px 0;
+      }
+    }
+  }
+
+  .articles {
+    margin-top: 20px;
+
+    .article-card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+
+      h3 {
+        margin-top: 0;
+      }
+
+      .article-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .author {
+          display: flex;
+          align-items: center;
+
+          .author-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+          }
+        }
+
+        .delete-button {
+          padding: 5px 10px;
+          background-color: red;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+
+          &:hover {
+            background-color: darkred;
+          }
+        }
+      }
+    }
+  }
+
+  .new-article {
+    margin-top: 30px;
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .submit-button {
+      padding: 8px 15px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  }
+
+  .error {
+    color: red;
+  }
+
+  .login-message {
+    text-align: center;
+    margin-top: 50px;
+    color: #555;
+    font-size: 20px;
+  }
+}
+#userControl {
   display: flex;
+  width: 100%;
   align-items: center;
-}
+  height: 90vh;
+  justify-content: center;
 
-.user-photo {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  margin-right: 15px;
-}
+  .userControl {
+    display: flex;
+    align-items: center;
+    height: 70vh;
+    width: 65%;
+    margin-top: -60px;
+    justify-content: space-around;
 
-.articles {
-  margin-top: 20px;
-}
+    padding: 0;
 
-.article-card {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 10px;
-}
+    .imageinlogin {
+      width: 49%;
 
-.article-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.author {
-  display: flex;
-  align-items: center;
-}
-
-.author-photo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.delete-button {
-  padding: 5px 10px;
-  background-color: red;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.error {
-  color: red;
+      img {
+        width: 100%; // Parent div-ə uyğun
+        max-width: 1800px; // Maksimum limit
+        height: auto;
+        display: block; 
+      }
+    }
+    .usercontrol-text{
+      width: 49%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      .mini-us-text{
+        display: flex;
+        flex-direction: column;
+        p{
+            font-size: 50px;
+            text-align: center;
+        }
+      }
+      .us-button{
+        display: flex;
+        flex-direction: column;
+        gap: 35px;
+        display: flex;
+        align-items: center;
+        button{
+          width: 70%;
+          height: 80px;
+          border-radius: 5px;
+        }
+      }
+    }
+  }
 }

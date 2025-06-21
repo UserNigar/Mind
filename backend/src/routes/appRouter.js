@@ -3,6 +3,7 @@ import {
   createArticle,
   deleteArticle,
   getAllArticles,
+  getArticlesByUserId,
   getMessages,
   getUserArticles,
   getUserId,
@@ -34,7 +35,7 @@ appRouter.get("/articles", getAllArticles);
 // istifadəçinin öz məqalələri üçün
 appRouter.get("/my-articles", authMiddleware, getUserArticles);
 appRouter.delete("/articles/:id", authMiddleware, deleteArticle);
-
+appRouter.get("/:id/articles", getArticlesByUserId);
 
 // İstifadəçi ID-yə görə məlumat alma - SONDA OLUR
 appRouter.get("/:id", getUserId);

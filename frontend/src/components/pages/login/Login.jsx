@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, logoutUser } from '../../../Redux/UserSlice';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import "./Login.scss"
 
 
 const Login = () => {
@@ -51,7 +52,7 @@ const Login = () => {
         }, timeLeft);
 
         alert('Uğurla daxil oldunuz!');
-        navigate('/');
+        navigate('/profile');
       } else {
         alert('İstifadəçi adı və ya şifrə yanlışdır!');
       }
@@ -61,12 +62,14 @@ const Login = () => {
   };
 
   return (
-    <div className="card login">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+    <section id='login-card'>
+      <div className="card-login">
+      <h2>Salam , Xoş gəlmisiniz👋🏻</h2>
+      <form className="card-logindetail" onSubmit={handleSubmit}>
+        <label htmlFor=""> istifadeci adi ve ya sifre daxil et</label>
         <input
           type="text"
-          placeholder="Username"
+          placeholder="hbkjn"
           name="username"
           value={formData.username}
           onChange={handleChange}
@@ -99,6 +102,7 @@ const Login = () => {
       {error && <p style={{ color: 'red' }}>Xəta: {error}</p>}
       <a href="/register">Qeydiyyat</a>
     </div>
+    </section>
   );
 };
 

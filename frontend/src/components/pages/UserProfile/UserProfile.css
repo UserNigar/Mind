@@ -1,0 +1,154 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+.container .profile {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+}
+.container .profile .user-info {
+  display: flex;
+  align-items: center;
+}
+.container .profile .user-info .user-photo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+.container .profile .user-info p {
+  margin: 5px 0;
+}
+.container .articles {
+  margin-top: 20px;
+}
+.container .articles .article-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.container .articles .article-card h3 {
+  margin-top: 0;
+}
+.container .articles .article-card .article-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.container .articles .article-card .article-footer .author {
+  display: flex;
+  align-items: center;
+}
+.container .articles .article-card .article-footer .author .author-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.container .articles .article-card .article-footer .delete-button {
+  padding: 5px 10px;
+  background-color: red;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.container .articles .article-card .article-footer .delete-button:hover {
+  background-color: darkred;
+}
+.container .new-article {
+  margin-top: 30px;
+}
+.container .new-article h2 {
+  margin-bottom: 10px;
+}
+.container .new-article input,
+.container .new-article textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 14px;
+}
+.container .new-article textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+.container .new-article .submit-button {
+  padding: 8px 15px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+.container .new-article .submit-button:hover {
+  background-color: #0056b3;
+}
+.container .error {
+  color: red;
+}
+.container .login-message {
+  text-align: center;
+  margin-top: 50px;
+  color: #555;
+  font-size: 20px;
+}
+
+#userControl {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  height: 90vh;
+  justify-content: center;
+}
+#userControl .userControl {
+  display: flex;
+  align-items: center;
+  height: 70vh;
+  width: 65%;
+  margin-top: -60px;
+  justify-content: space-around;
+  padding: 0;
+}
+#userControl .userControl .imageinlogin {
+  width: 49%;
+}
+#userControl .userControl .imageinlogin img {
+  width: 100%;
+  max-width: 1800px;
+  height: auto;
+  display: block;
+}
+#userControl .userControl .usercontrol-text {
+  width: 49%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+#userControl .userControl .usercontrol-text .mini-us-text {
+  display: flex;
+  flex-direction: column;
+}
+#userControl .userControl .usercontrol-text .mini-us-text p {
+  font-size: 50px;
+  text-align: center;
+}
+#userControl .userControl .usercontrol-text .us-button {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+  display: flex;
+  align-items: center;
+}
+#userControl .userControl .usercontrol-text .us-button button {
+  width: 70%;
+  height: 80px;
+  border-radius: 5px;
+}/*# sourceMappingURL=UserProfile.css.map */

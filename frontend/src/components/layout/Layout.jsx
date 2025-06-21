@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '../headercomponent/header/Header';
-import { Outlet } from 'react-router';
+import { Outlet } from 'react-router-dom';
+
 import Footer from '../footer/Footer';
 
 const Layout = ({ darkMode, setDarkMode }) => {

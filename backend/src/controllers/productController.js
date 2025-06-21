@@ -229,3 +229,13 @@ export const deleteArticle = async (req, res) => {
     res.status(500).json({ message: "Server xətası" });
   }
 };
+export const getArticlesByUserId = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const articles = await ArticleModel.find({ author: userId });
+    res.status(200).json(articles);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Məqalələr yüklənə bilmədi" });
+  }
+};

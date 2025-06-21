@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch  } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import images from "../../../assets/Illustration@2x.png"
 import "./UserProfile.scss";
 import { deleteArticle, fetchMyArticles } from "../../../Redux/ArticleSlice";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
+  const navigate=useNavigate()
   const { myArticles, loading, error } = useSelector((state) => state.articles);
   const currentUser = useSelector((state) => state.users.currentUser);
 
@@ -21,25 +23,30 @@ const UserProfile = () => {
     }
   };
 
- if (!currentUser) {
+  if (!currentUser) {
     return (
-     <>
-     <section id="userControl">
-      <div className="userControl">
-        <div className="imageinlogin">
-          <img src={images} alt="" />
-        </div>
-        <div className="usercontrol-text">
-          <h1>
-            hi
-          </h1>
-          <p>
-            dnxhwldinwl
-          </p>
-        </div>
-      </div>
-     </section>
-     </>
+      <>
+        <section id="userControl">
+          <div className="userControl">
+            <div className="imageinlogin">
+              <img src={images} alt="" className="img" />
+            </div>
+            <div className="usercontrol-text">
+              <div className="mini-us-text">
+                <p>
+                  Platformamızın sizə təqdim etdiyi yeniliklərdən xəbərdar olmaq, öz fikirlərinizi paylaşmaq və maraqlı insanlarla tanış olmaq üçün indi qeydiyyatdan keçin!
+<br /> İcmanın bir parçası olun və səsiniz eşidilsin 🌟
+                </p>
+              </div>
+              <div className="us-button">
+                <button onClick={()=>navigate("/login")}>ewfwe</button>
+                <button>wefesw</button>
+              </div>
+
+            </div>
+          </div>
+        </section>
+      </>
     );
   }
 

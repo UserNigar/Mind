@@ -10,6 +10,7 @@ import { Toaster } from 'react-hot-toast';
 import Chat from './components/chat/Chat.jsx';
 import Share from './components/pages/share/Share.jsx';
 import ArticleList from './components/pages/articleList/ArticleList.jsx';
+import UserDetail from './components/pages/userDetail/UserDetail.jsx';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -29,6 +30,8 @@ function App() {
            <Route path="chat" element={<Chat />} />
             <Route path="share" element={<Share />} />
              <Route path="article" element={<ArticleList />} />
+             <Route path="user/:id" element={<UserDetail />} />
+
         </Route>
       </Routes>
     </>

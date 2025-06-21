@@ -2,3 +2,4 @@ logo-mindheaven
 primary-soft indigo(#EAF0FA)
 background color-(#6C91BF)
 main text color-(#2C3E50)
+color1-#E9ECF4

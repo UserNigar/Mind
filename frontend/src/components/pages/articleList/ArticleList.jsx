@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 const ArticleList = () => {
   const [articles, setArticles] = useState([]);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleClick = (userId) => {
+    if (userId) {
+      navigate(`/user/${userId}`)
+    }
+  };
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -24,10 +32,24 @@ const ArticleList = () => {
       <h2>Məqalələr</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {articles.map((article) => (
-        <div key={article._id} style={{ border: "1px solid #ddd", padding: "10px", marginBottom: "10px" }}>
+        <div
+          key={article._id}
+          style={{
+            border: "1px solid #ddd",
+            padding: "10px",
+            marginBottom: "10px",
+          }}
+        >
           <h3>{article.title}</h3>
           <p>{article.content}</p>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              marginTop: "10px",
+            }}
+          >
             {article.author?.photo && (
               <img
                 src={`http://localhost:5050/photos/${article.author.photo}`}
@@ -35,7 +57,12 @@ const ArticleList = () => {
                 style={{ width: "40px", height: "40px", borderRadius: "50%" }}
               />
             )}
-            <span>{article.author?.username || "Naməlum istifadəçi"}</span>
+            <span
+              onClick={() => handleClick(article.author?._id)}
+              style={{ cursor: "pointer", color: "#4caf50" }}
+            >
+              {article.author?.username || "Naməlum istifadəçi"}
+            </span>
           </div>
         </div>
       ))}
