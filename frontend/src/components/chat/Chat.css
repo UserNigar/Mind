@@ -112,6 +112,7 @@
   display: flex;
   flex-direction: column;
   padding: 15px;
+  height: 300px;
 }
 
 .chat-section h3 {
@@ -126,7 +127,8 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 10px;
-  background-color: #f9f9f9;
+  background-color: #281d1d;
+  height: 200px;
 }
 
 .message {

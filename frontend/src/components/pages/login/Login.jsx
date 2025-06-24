@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, logoutUser } from '../../../Redux/UserSlice';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import "./Login.scss"
+import "./Login.scss";
+import logologin from "../../../assets/mylogo2.png";
 
-
-const Login = () => {
+const Login = ({ darkmode, setDarkMode }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { status, error } = useSelector((state) => state.users);
@@ -24,26 +24,16 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const result = await dispatch(loginUser(formData));
-
       if (result.meta.requestStatus === 'fulfilled') {
         const userToken = result.payload.token;
-
-        // Tokeni saxla
         localStorage.setItem('token', userToken);
         setToken(userToken);
 
-        // Tokeni decode et və vaxtını tap
         const decoded = jwtDecode(userToken);
-        const expiresAt = decoded.exp * 1000; // exp saniyə ilədir, millisekunda çevir
-        const now = Date.now();
-        const timeLeft = expiresAt - now;
+        const timeLeft = decoded.exp * 1000 - Date.now();
 
-        console.log("Token vaxtı qalan saniyə:", Math.floor(timeLeft / 1000));
-
-        // Token vaxtı bitdikdə logout et
         setTimeout(() => {
           dispatch(logoutUser());
           localStorage.removeItem('token');
@@ -62,46 +52,39 @@ const Login = () => {
   };
 
   return (
-    <section id='login-card'>
+    <section id='login-card' className={darkmode ? 'dark' : 'ligth'}>
+     <div className="login-item">
+       <div className="login-logo">
+        <img src={logologin} alt="logo" />
+      </div>
       <div className="card-login">
-      <h2>Salam , Xoş gəlmisiniz👋🏻</h2>
-      <form className="card-logindetail" onSubmit={handleSubmit}>
-        <label htmlFor=""> istifadeci adi ve ya sifre daxil et</label>
-        <input
-          type="text"
-          placeholder="hbkjn"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-        <button type="submit" disabled={status === 'loading'}>
-          {status === 'loading' ? 'Yüklənir...' : 'Login'}
-        </button>
-      </form>
+        <h2>Salam , Xoş gəlmisiniz👋🏻</h2>
+        <form className="card-logindetail" onSubmit={handleSubmit}>
+          <input
+           type="text"
+            name="username"
+            placeholder='Istifadeci adinizi daxil edin'
+             value={formData.username}
+              onChange={handleChange}
+               required />
+          <input type="password" name="password"
+          placeholder='Sifrenizi daxil edin' value={formData.password} onChange={handleChange} required />
+          <button type="submit" disabled={status === 'loading'}>
+            {status === 'loading' ? 'Yüklənir...' : 'Login'}
+          </button>
+        </form>
 
-      {token && (
-        <div style={{ marginTop: '20px', wordBreak: 'break-all' }}>
-          <h3>Token:</h3>
-          <textarea
-            readOnly
-            style={{ width: '100%', height: '100px' }}
-            value={token}
-          />
-        </div>
-      )}
+        {token && (
+          <div className="token-box">
+            <h3>Token:</h3>
+            <textarea readOnly value={token} />
+          </div>
+        )}
 
-      {error && <p style={{ color: 'red' }}>Xəta: {error}</p>}
-      <a href="/register">Qeydiyyat</a>
-    </div>
+        {error && <p className="error">Xəta: {error}</p>}
+        <a href="/register">Qeydiyyat</a>
+      </div>
+     </div>
     </section>
   );
 };

@@ -19,14 +19,14 @@ function App() {
     <>
       <Toaster position="top-center" reverseOrder={false} />
             <Routes>
+              <Route path="register" element={<RegisterForm  darkMode={darkMode} setDarkMode={setDarkMode}/>} />
+              <Route path="login" element={<Login />} />
         <Route
           path="/"
           element={<Layout darkMode={darkMode} setDarkMode={setDarkMode} />}
         >
           <Route index element={<Home />} />
-          <Route path="register" element={<RegisterForm />} />
           <Route path="profile" element={<UserProfile />} />
-          <Route path="login" element={<Login />} />
            <Route path="chat" element={<Chat />} />
             <Route path="share" element={<Share />} />
              <Route path="article" element={<ArticleList />} />

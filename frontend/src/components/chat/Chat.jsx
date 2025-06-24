@@ -1,121 +1,78 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
+import {
+  setSelectedUser,
+  getMessagesFromDB,
+  sendMessageToDB,
+  addMessage,
+} from "../../Redux/ChatSlice.js";
 import { getUsers } from "../../Redux/UserSlice";
-import axios from "axios";
 import "./Chat.css";
 
 const Chat = () => {
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.users.currentUser);
   const allUsers = useSelector((state) => state.users.users);
-
-  const [socket, setSocket] = useState(null);
-  const [onlineUsers, setOnlineUsers] = useState([]);
+  const selectedUser = useSelector((state) => state.chat.selectedUser);
+  const messages = useSelector((state) => state.chat.messages);
   const [searchName, setSearchName] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const messageInputRef = useRef(null);
+  const [socket, setSocket] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const messageInputRef = useRef();
 
-  // Bütün istifadəçiləri yüklə
   useEffect(() => {
     dispatch(getUsers());
   }, [dispatch]);
 
-  // socket.io qoşulması
   useEffect(() => {
     if (!currentUser) return;
-
     const newSocket = io("http://localhost:5050");
     setSocket(newSocket);
-
     newSocket.emit("join", currentUser.username);
-
     newSocket.on("onlineUsers", (users) => {
       setOnlineUsers(users.filter((u) => u !== currentUser.username));
     });
-
     newSocket.on("privateMessage", ({ message, fromUsername }) => {
-      if (fromUsername === selectedUser) {
-        setMessages((prev) => [...prev, { from: fromUsername, text: message }]);
-      } else {
+      dispatch(addMessage({ from: fromUsername, to: currentUser.username, text: message }));
+      if (fromUsername !== selectedUser) {
         alert(`Yeni mesaj: ${fromUsername} → ${message}`);
       }
     });
-
     return () => newSocket.disconnect();
   }, [currentUser, selectedUser]);
 
-  // Axtarış və filtrasiya
   useEffect(() => {
     if (!allUsers) return;
-
-    const usersWithoutCurrent = allUsers.filter(
-      (user) => user.username !== currentUser?.username
+    const result = allUsers.filter(
+      (u) =>
+        u.username !== currentUser?.username &&
+        u.username.toLowerCase().includes(searchName.toLowerCase())
     );
-
-    const filtered = usersWithoutCurrent.filter((user) =>
-      user.username.toLowerCase().includes(searchName.toLowerCase())
-    );
-    setFilteredUsers(filtered);
+    setFilteredUsers(result);
   }, [searchName, allUsers, currentUser]);
 
-  // Seçilmiş istifadəçi ilə olan mesajları DB-dən çək
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (!selectedUser || !currentUser) return;
+    if (!selectedUser || !currentUser) return;
+    const token = localStorage.getItem("token");
+    dispatch(getMessagesFromDB({ from: currentUser.username, to: selectedUser, token }));
+  }, [selectedUser, currentUser, dispatch]);
 
-      const token = localStorage.getItem("token"); // Tokeni localStorage-dan götürürük
-  console.log("Token:", token); // buraya bax!
-      try {
-        const res = await axios.get(
-          `http://localhost:5050/api/users/messages?from=${currentUser.username}&to=${selectedUser}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`, // Tokeni header-a əlavə edirik
-            },
-          }
-        );
-        setMessages(res.data);
-      } catch (err) {
-        console.error("Mesajlar yüklənə bilmədi:", err);
-      }
-    };
-    fetchMessages();
-  }, [selectedUser, currentUser]);
-
-  const sendMessage = async () => {
+  const handleSendMessage = () => {
     if (!socket || !selectedUser) return;
-    const msg = messageInputRef.current.value.trim();
-    if (!msg) return;
+    const text = messageInputRef.current.value.trim();
+    if (!text) return;
 
-    const messageData = {
-      from: currentUser.username,
-      to: selectedUser,
-      text: msg,
-    };
+    const from = currentUser.username;
+    const to = selectedUser;
+    const token = localStorage.getItem("token");
 
-    // Socket.io ilə göndər
-    socket.emit("privateMessage", {
-      fromUsername: messageData.from,
-      toUsername: messageData.to,
-      message: messageData.text,
-    });
+    // socket göndər
+    socket.emit("privateMessage", { fromUsername: from, toUsername: to, message: text });
 
-    // DB-yə göndər
-    try {
-      const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5050/api/users/messages", messageData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    } catch (err) {
-      console.error("Mesaj saxlanmadı:", err);
-    }
-
-    setMessages((prev) => [...prev, messageData]);
+    // redux + backend
+    dispatch(sendMessageToDB({ from, to, text, token }));
     messageInputRef.current.value = "";
   };
 
@@ -135,13 +92,10 @@ const Chat = () => {
           {filteredUsers.map((user) => (
             <li
               key={user.username}
-              className={`user-item ${
-                user.username === selectedUser ? "selected" : ""
-              } ${onlineUsers.includes(user.username) ? "online" : "offline"}`}
-              onClick={() => {
-                setSelectedUser(user.username);
-                setMessages([]);
-              }}
+              className={`user-item ${user.username === selectedUser ? "selected" : ""} ${
+                onlineUsers.includes(user.username) ? "online" : "offline"
+              }`}
+              onClick={() => dispatch(setSelectedUser(user.username))}
             >
               <img
                 src={`http://localhost:5050/photos/${user.photo}`}
@@ -149,9 +103,7 @@ const Chat = () => {
                 className="profile-pic"
               />
               <span className="username">{user.username}</span>
-              {onlineUsers.includes(user.username) && (
-                <span className="online-indicator">🟢</span>
-              )}
+              {onlineUsers.includes(user.username) && <span className="online-indicator">🟢</span>}
             </li>
           ))}
         </ul>
@@ -163,9 +115,7 @@ const Chat = () => {
           {messages.map((m, i) => (
             <div
               key={i}
-              className={`message ${
-                m.from === currentUser.username ? "sent" : "received"
-              }`}
+              className={`message ${m.from === currentUser.username ? "sent" : "received"}`}
             >
               <span className="message-content">
                 <b>{m.from}: </b> {m.text}
@@ -179,9 +129,9 @@ const Chat = () => {
             ref={messageInputRef}
             placeholder="Mesaj yaz..."
             className="message-input"
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
           />
-          <button onClick={sendMessage} className="send-button">
+          <button onClick={handleSendMessage} className="send-button">
             Göndər
           </button>
         </div>

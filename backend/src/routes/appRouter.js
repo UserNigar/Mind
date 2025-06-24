@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  addCommentToArticle,
   createArticle,
   deleteArticle,
   getAllArticles,
@@ -11,6 +12,7 @@ import {
   loginService,
   registerService,
   saveMessage,
+  toggleLike,
   updatePersonalImf,
 } from "../controllers/productController.js";
 import { customizedMulter } from "../../multer.js";
@@ -37,7 +39,11 @@ appRouter.get("/my-articles", authMiddleware, getUserArticles);
 appRouter.delete("/articles/:id", authMiddleware, deleteArticle);
 appRouter.get("/:id/articles", getArticlesByUserId);
 
-// İstifadəçi ID-yə görə məlumat alma - SONDA OLUR
+appRouter.patch("/articles/:id/like", authMiddleware, toggleLike);
+
+
+appRouter.post("/articles/:id/comment", authMiddleware, addCommentToArticle);
+
 appRouter.get("/:id", getUserId);
 
 export default appRouter;

@@ -92,7 +92,7 @@ export const getUserId = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Server xətası" });
   }
-};  // <-- burada bağlayıcı əlavə edildi
+};  
 
 export const updatePersonalImf = [
   updateProfilePhoto.single("photo"),
@@ -128,7 +128,7 @@ export const updatePersonalImf = [
       res.status(500).json({ error: "Update failed" });
     }
   }
-];  // <-- burada da bağlayıcı əlavə edildi
+]; 
 export const saveMessage = async (req, res) => {
   try {
     const { from, to, text } = req.body;
@@ -237,5 +237,61 @@ export const getArticlesByUserId = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Məqalələr yüklənə bilmədi" });
+  }
+};
+
+export const toggleLike = async (req, res) => {
+  const userId = req.user.id; // düzəldilmiş versiya
+  const { id } = req.params;
+
+  try {
+    const article = await ArticleModel.findById(id); // <-- düz ad
+    if (!article) return res.status(404).json({ message: "Məqalə tapılmadı" });
+
+    const alreadyLiked = article.likes.includes(userId);
+
+    if (alreadyLiked) {
+      article.likes.pull(userId);
+    } else {
+      article.likes.push(userId);
+    }
+
+    await article.save();
+    res.status(200).json({ likes: article.likes.length });
+  } catch (error) {
+    console.error("toggleLike error:", error);
+    res.status(500).json({ message: "Xəta baş verdi" });
+  }
+};
+
+export const addCommentToArticle = async (req, res) => {
+  const { id } = req.params; // article id
+  const { text } = req.body;
+  const userId = req.user.id;
+
+  if (!text) {
+    return res.status(400).json({ message: "Şərh boş ola bilməz" });
+  }
+
+  try {
+    const article = await ArticleModel.findById(id);
+    if (!article) {
+      return res.status(404).json({ message: "Məqalə tapılmadı" });
+    }
+
+    const comment = { user: userId, text };
+    article.comments.push(comment);
+    await article.save();
+
+    const populatedArticle = await ArticleModel.findById(id)
+      .populate("comments.user", "username photo");
+
+    res.status(201).json({
+      message: "Şərh əlavə olundu",
+      comments: populatedArticle.comments
+    });
+  } catch (err) {
+    console.error("Şərh əlavə xətası:", err);
+    res.status(500).json({ message: "Server xətası" });
   }
 };

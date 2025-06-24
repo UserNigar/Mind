@@ -1,15 +1,16 @@
 import mongoose, { model, Schema } from "mongoose";
 
+// USER SCHEMA
 const userSchema = new Schema({
-    username:String,
-    name:String,
-    surname:String,
-    email:String,
-    password:String,
-    photo:String
-},{versionKey:false})
+  username: String,
+  name: String,
+  surname: String,
+  email: String,
+  password: String,
+  photo: String
+}, { versionKey: false });
 
-
+// MESSAGE SCHEMA
 const messageSchema = new mongoose.Schema({
   from: String,
   to: String,
@@ -19,17 +20,23 @@ const messageSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+// ARTICLE SCHEMA
 const articleSchema = new mongoose.Schema({
   title: String,
   content: String,
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "users", // bu "userModel.js"-dəki modelin adıyla uyğun olmalıdır
-    required: true,
-  },
+  author: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // ref uyğun olmalıdır
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+ comments: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      text: String,
+      createdAt: { type: Date, default: Date.now }
+    }
+  ]
 }, { timestamps: true });
 
-export const ArticleModel = mongoose.model("Article", articleSchema);
-
-export const messageModel = mongoose.model("messages", messageSchema);
-export const userModel = model('users',userSchema)
+// MODELLƏRİN QEYDİYYATI
+export const userModel = model("User", userSchema);         // ref: "User"
+export const messageModel = model("Message", messageSchema);
+export const ArticleModel = model("Article", articleSchema);
