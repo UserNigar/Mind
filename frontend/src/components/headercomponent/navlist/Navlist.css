@@ -2,13 +2,13 @@
   list-style: none;
   padding: 0;
   display: flex;
-  gap: 60px;
+  gap: 30px;
 }
 
 .navlist-item a {
   text-decoration: none;
   color: black;
-  font-size: 53px;
+  font-size: 23px;
   font-weight: 500;
 }
 

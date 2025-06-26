@@ -53,7 +53,7 @@ export const updateUser = createAsyncThunk(
   'users/updateUser',
   async ({ id, updatedData }, { getState, rejectWithValue }) => {
     try {
-      const { token } = getState().users;  // tokeni store-dan götürürük
+      const { token } = getState().users; 
 
       const res = await axios.patch(`${base_URL}/${id}`, updatedData, {
         headers: { 

@@ -8,7 +8,9 @@ const Wrapper = ({darkMode , setDarkMode}) => {
   return (
     <div className='wrapper'>
         <UserBtn  />
-        <SideBar darkMode={darkMode} setDarkMode={setDarkMode} />
+       <div className="toggle">
+         <SideBar darkMode={darkMode} setDarkMode={setDarkMode} />
+       </div>
     </div>
   )
 }

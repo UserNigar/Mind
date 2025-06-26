@@ -6,6 +6,7 @@ import images from "../../../assets/Illustration@2x.png";
 import "./UserProfile.scss";
 import { deleteArticle, fetchMyArticles } from "../../../Redux/ArticleSlice";
 import { updateUser } from "../../../Redux/UserSlice";
+import { followUser, unfollowUser, fetchFollowData } from "../../../Redux/FollowersSlice";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -13,31 +14,69 @@ const UserProfile = () => {
   const photoInputRef = useRef(null);
   const { myArticles, loading, error } = useSelector((state) => state.articles);
   const currentUser = useSelector((state) => state.users.currentUser);
+  const { followers, following, loading: followLoading } = useSelector((state) => state.follow);
 
-  const [editMode, setEditMode] = useState({
-    username: false,
-    name: false,
-    surname: false,
-    email: false,
-  });
-
+  // Modal açılıb-bağlanması üçün state
+  const [modalOpen, setModalOpen] = useState(false);
+  // Edit edilən sahə
+  const [editField, setEditField] = useState(null);
+  // Form məlumatları modal üçün
   const [formData, setFormData] = useState({
-    username: currentUser?.username || "",
-    name: currentUser?.name || "",
-    surname: currentUser?.surname || "",
-    email: currentUser?.email || "",
+    username: "",
+    name: "",
+    surname: "",
+    email: "",
   });
 
   useEffect(() => {
     if (currentUser) {
       dispatch(fetchMyArticles());
+      dispatch(fetchFollowData(currentUser._id));
+      setFormData({
+        username: currentUser.username || "",
+        name: currentUser.name || "",
+        surname: currentUser.surname || "",
+        email: currentUser.email || "",
+      });
     }
   }, [dispatch, currentUser]);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Bu məqaləni silmək istədiyinizə əminsiniz?")) {
-      dispatch(deleteArticle(id));
-    }
+  const openEditModal = (field) => {
+    setEditField(field);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditField(null);
+    // Formu cari istifadəçi məlumatı ilə yenilə (əgər redaktədən imtina edilibsə)
+    setFormData({
+      username: currentUser.username || "",
+      name: currentUser.name || "",
+      surname: currentUser.surname || "",
+      email: currentUser.email || "",
+    });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = () => {
+    if (!editField) return;
+
+    const updatedData = { [editField]: formData[editField] };
+
+    dispatch(updateUser({ id: currentUser._id, updatedData }))
+      .unwrap()
+      .then(() => {
+        toast.success(`${editField} uğurla yeniləndi`);
+        closeModal();
+      })
+      .catch(() => {
+        toast.error(`${editField} yenilənərkən xəta baş verdi`);
+      });
   };
 
   const handlePhotoChange = () => {
@@ -53,64 +92,30 @@ const UserProfile = () => {
     dispatch(updateUser({ id: currentUser._id, updatedData: form }))
       .unwrap()
       .then(() => toast.success("Şəkil uğurla yeniləndi"))
-      .catch((err) => {
-        toast.error(err?.message || "Xəta baş verdi");
-      });
+      .catch(() => toast.error("Xəta baş verdi"));
   };
 
-  const handleEditClick = (field) => {
-    setEditMode((prev) => ({ ...prev, [field]: true }));
+  const handleDelete = (id) => {
+    if (window.confirm("Bu məqaləni silmək istədiyinizə əminsiniz?")) {
+      dispatch(deleteArticle(id));
+    }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSave = (field) => {
-    const updatedData = { [field]: formData[field] };
-
-    dispatch(updateUser({ id: currentUser._id, updatedData }))
+  const handleFollow = (userId) => {
+    if (followLoading) return;
+    dispatch(followUser(userId))
       .unwrap()
-      .then(() => {
-        toast.success(`${field} uğurla yeniləndi`);
-        setEditMode((prev) => ({ ...prev, [field]: false }));
-      })
-      .catch((err) => {
-        toast.error(err?.message || `${field} yenilənərkən xəta baş verdi`);
-      });
+      .then(() => toast.success("İzləmə uğurla əlavə edildi"))
+      .catch(() => toast.error("İzləmə zamanı xəta baş verdi"));
   };
 
-  const handleCancel = (field) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: currentUser[field] || "",
-    }));
-    setEditMode((prev) => ({ ...prev, [field]: false }));
+  const handleUnfollow = (userId) => {
+    if (followLoading) return;
+    dispatch(unfollowUser(userId))
+      .unwrap()
+      .then(() => toast.success("İzləmədən çıxarıldı"))
+      .catch(() => toast.error("İzləmədən çıxarılma zamanı xəta baş verdi"));
   };
-
-  const renderEditableField = (field, label) => (
-    <div className="editable-field">
-      <p><strong>{label}:</strong></p>
-      {!editMode[field] ? (
-        <>
-          <p>{formData[field] || "—"}</p>
-          <button onClick={() => handleEditClick(field)}>Edit</button>
-        </>
-      ) : (
-        <>
-          <input
-            type="text"
-            name={field}
-            value={formData[field]}
-            onChange={handleInputChange}
-          />
-          <button onClick={() => handleSave(field)}>Save</button>
-          <button onClick={() => handleCancel(field)}>Cancel</button>
-        </>
-      )}
-    </div>
-  );
 
   if (!currentUser) {
     return (
@@ -120,13 +125,9 @@ const UserProfile = () => {
             <img src={images} alt="" className="img" />
           </div>
           <div className="usercontrol-text">
-            <div className="mini-us-text">
-              <p>
-                Platformamızın sizə təqdim etdiyi yeniliklərdən xəbərdar olmaq,
-                öz fikirlərinizi paylaşmaq və maraqlı insanlarla tanış olmaq üçün indi qeydiyyatdan keçin!
-                <br /> İcmanın bir parçası olun və səsiniz eşidilsin 🌟
-              </p>
-            </div>
+            <p>
+              Platformamızın yeniliklərindən xəbərdar olmaq və icmaya qoşulmaq üçün daxil olun və ya qeydiyyatdan keçin!
+            </p>
             <div className="us-button">
               <button onClick={() => navigate("/login")}>Daxil ol</button>
               <button onClick={() => navigate("/register")}>Qeydiyyat</button>
@@ -154,11 +155,40 @@ const UserProfile = () => {
           <input type="file" ref={photoInputRef} className="form-control mt-2" />
           <button onClick={handlePhotoChange}>Şəkli dəyiş</button>
 
-          <div className="editable-fields">
-            {renderEditableField("username", "İstifadəçi adı")}
-            {renderEditableField("name", "Ad")}
-            {renderEditableField("surname", "Soyad")}
-            {renderEditableField("email", "Email")}
+          <div className="fields">
+            {["username", "name", "surname", "email"].map((field) => (
+              <div className="field" key={field}>
+                <strong>{field.charAt(0).toUpperCase() + field.slice(1)}:</strong>{" "}
+                <span>{formData[field] || "—"}</span>{" "}
+                <button onClick={() => openEditModal(field)}>Redaktə et</button>
+              </div>
+            ))}
+          </div>
+
+          <div className="follow-section">
+            <h3>İzləyicilər ({followers.length})</h3>
+            <ul>
+              {followers.map((f) => (
+                <li key={f._id}>
+                  {f.username}{" "}
+                  {following.some((u) => u._id === f._id) ? (
+                    <button onClick={() => handleUnfollow(f._id)}>İzləmədən çıx</button>
+                  ) : (
+                    <button onClick={() => handleFollow(f._id)}>İzləyin</button>
+                  )}
+                </li>
+              ))}
+            </ul>
+
+            <h3>İzlədiklərim ({following.length})</h3>
+            <ul>
+              {following.map((f) => (
+                <li key={f._id}>
+                  {f.username}{" "}
+                  <button onClick={() => handleUnfollow(f._id)}>İzləmədən çıx</button>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
@@ -198,12 +228,25 @@ const UserProfile = () => {
         )}
       </div>
 
-      <div className="new-article">
-        <h2>Yeni Məqalə Yarat</h2>
-        <input type="text" placeholder="Məqalə başlığı" />
-        <textarea placeholder="Məqalə məzmunu"></textarea>
-        <button className="submit-button">Paylaş</button>
-      </div>
+      {/* Modal */}
+      {modalOpen && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>{editField && `Redaktə et: ${editField.charAt(0).toUpperCase() + editField.slice(1)}`}</h3>
+            <input
+              type="text"
+              name={editField}
+              value={formData[editField] || ""}
+              onChange={handleInputChange}
+              autoFocus
+            />
+            <div className="modal-buttons">
+              <button onClick={handleSave}>Yadda saxla</button>
+              <button onClick={closeModal} className="cancel-btn">İmtina et</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

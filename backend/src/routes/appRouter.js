@@ -3,8 +3,10 @@ import {
   addCommentToArticle,
   createArticle,
   deleteArticle,
+  followUser,
   getAllArticles,
   getArticlesByUserId,
+  getFollowersAndFollowing,
   getMessages,
   getUserArticles,
   getUserId,
@@ -13,6 +15,7 @@ import {
   registerService,
   saveMessage,
   toggleLike,
+  unfollowUser,
   updatePersonalImf,
 } from "../controllers/productController.js";
 import { customizedMulter } from "../../multer.js";
@@ -44,6 +47,12 @@ appRouter.patch("/articles/:id/like", authMiddleware, toggleLike);
 
 appRouter.post("/articles/:id/comment", authMiddleware, addCommentToArticle);
 
+
+
+
+appRouter.patch("/follow/:id", authMiddleware, followUser);
+appRouter.patch("/unfollow/:id", authMiddleware, unfollowUser);
+appRouter.get("/:id/follow-data", getFollowersAndFollowing);
 appRouter.get("/:id", getUserId);
 
 export default appRouter;

@@ -25,7 +25,7 @@ export default function SideBar({ darkMode, setDarkMode }) {
   return (
     <div>
       <Button onClick={toggleDrawer(true)} className="sidebar-btn">
-        <MenuIcon sx={{ fontSize: 70, color: darkMode ? 'white' : 'black' }} />
+        <MenuIcon sx={{ fontSize: 30, color: darkMode ? 'white' : 'black' }} />
       </Button>
       <SwipeableDrawer
         anchor="left"

@@ -17,13 +17,12 @@ export const fetchMyArticles = createAsyncThunk(
   }
 );
 
-// ArticleSlice.js
 export const likeArticle = createAsyncThunk(
   "articles/likeArticle",
   async (articleId, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      // Burada endpointi backenddə işləyən route-a uyğun edin
+
       const res = await axios.patch(
         `http://localhost:5050/api/users/articles/${articleId}/like`,
         {},
@@ -74,21 +73,19 @@ export const addCommentToArticle = createAsyncThunk(
     }
   }
 );
-
+// ✅ Doğru versiya
 export const fetchAllArticles = createAsyncThunk(
   "articles/fetchAllArticles",
   async (_, thunkAPI) => {
-    const token = localStorage.getItem("token");
     try {
-      const res = await axios.get("http://localhost:5050/api/users/my-articles", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get("http://localhost:5050/api/users/articles");
       return res.data;
     } catch (err) {
-      return thunkAPI.rejectWithValue("Məqalələr yüklənə bilmədi.");
+      return thunkAPI.rejectWithValue("Bütün məqalələr yüklənə bilmədi.");
     }
   }
 );
+
 
 
 const articleSlice = createSlice({
@@ -128,12 +125,12 @@ extraReducers: (builder) => {
     .addCase(addCommentToArticle.rejected, (state, action) => {
       state.error = action.payload;
     })
-    .addCase(likeArticle.fulfilled, (state, action) => {
-      const { articleId, likes } = action.payload;
-      state.myArticles = state.myArticles.map((article) =>
-        article._id === articleId ? { ...article, likes } : article
-      );
-    })
+   .addCase(likeArticle.fulfilled, (state, action) => {
+  const { articleId, likes } = action.payload;
+  state.myArticles = state.myArticles.map((article) =>
+    article._id === articleId ? { ...article, likes } : article
+  );
+})
     .addCase(fetchAllArticles.pending, (state) => {
   state.loading = true;
   state.error = "";

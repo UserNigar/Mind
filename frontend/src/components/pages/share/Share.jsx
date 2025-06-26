@@ -1,27 +1,34 @@
-// components/CreateArticle.jsx
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Share = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const navigate = useNavigate();
+  const currentUser = useSelector((state) => state.users.currentUser || "ok")
 
   const submitArticle = async () => {
-    const token = localStorage.getItem("token");
+    if (!currentUser) {
+      toast.error("Məqalə paylaşmaq üçün əvvəlcə daxil olun.");
+      return;
+    }
+
     try {
-      await axios.post("http://localhost:5050/api/users/articles", {
-        title,
-        content,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const token = localStorage.getItem("token");
+      await axios.post(
+        "http://localhost:5050/api/users/articles",
+        { title, content },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       alert("Məqalə uğurla əlavə edildi");
       setTitle("");
       setContent("");
     } catch (err) {
       console.error("Xəta:", err);
+      alert("Məqalə əlavə edilərkən xəta baş verdi.");
     }
   };
 

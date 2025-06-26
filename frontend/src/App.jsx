@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout.jsx';
 import './App.css';
-import Home from './components/pages/Home.jsx';
 import RegisterForm from './components/pages/register/Register.jsx';
 import Login from './components/pages/login/Login.jsx';
 import UserProfile from './components/pages/UserProfile/UserProfile.jsx';
@@ -11,6 +10,7 @@ import Chat from './components/chat/Chat.jsx';
 import Share from './components/pages/share/Share.jsx';
 import ArticleList from './components/pages/articleList/ArticleList.jsx';
 import UserDetail from './components/pages/userDetail/UserDetail.jsx';
+import ArticleListWithSidebar from './components/pages/Side/Side.jsx';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -25,7 +25,7 @@ function App() {
           path="/"
           element={<Layout darkMode={darkMode} setDarkMode={setDarkMode} />}
         >
-          <Route index element={<Home />} />
+          <Route index element={< ArticleListWithSidebar/>} />
           <Route path="profile" element={<UserProfile />} />
            <Route path="chat" element={<Chat />} />
             <Route path="share" element={<Share />} />

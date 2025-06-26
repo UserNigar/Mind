@@ -1,0 +1,52 @@
+.container-layout {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+}
+
+.article-list {
+  flex: 2;
+}
+
+.right-sidebar {
+  flex: 1;
+  position: sticky;
+  top: 20px;
+  height: -moz-fit-content;
+  height: fit-content;
+  background: #f7f7f7;
+  border-radius: 10px;
+  padding: 20px;
+}
+.right-sidebar .profile-box {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.right-sidebar .profile-box .profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+.right-sidebar .profile-box h3 {
+  margin: 5px 0;
+}
+.right-sidebar .profile-box p {
+  font-size: 14px;
+  color: #555;
+}
+.right-sidebar .menu-box h4 {
+  margin-bottom: 10px;
+}
+.right-sidebar .menu-box ul {
+  list-style: none;
+  padding: 0;
+}
+.right-sidebar .menu-box ul li {
+  padding: 8px 0;
+  cursor: pointer;
+}
+.right-sidebar .menu-box ul li:hover {
+  color: #1976d2;
+}/*# sourceMappingURL=ArticleListWithSidebar.css.map */

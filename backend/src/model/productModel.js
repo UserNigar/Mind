@@ -7,8 +7,11 @@ const userSchema = new Schema({
   surname: String,
   email: String,
   password: String,
-  photo: String
+  photo: String,
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 }, { versionKey: false });
+
 
 // MESSAGE SCHEMA
 const messageSchema = new mongoose.Schema({

@@ -1,0 +1,61 @@
+.container-layout {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+}
+
+.article-list {
+  flex: 2;
+}
+
+.right-sidebar {
+  flex: 1;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  background: #f7f7f7;
+  border-radius: 10px;
+  padding: 20px;
+
+  .profile-box {
+    text-align: center;
+    margin-bottom: 20px;
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      margin: 5px 0;
+    }
+
+    p {
+      font-size: 14px;
+      color: #555;
+    }
+  }
+
+  .menu-box {
+    h4 {
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        padding: 8px 0;
+        cursor: pointer;
+
+        &:hover {
+          color: #1976d2;
+        }
+      }
+    }
+  }
+}

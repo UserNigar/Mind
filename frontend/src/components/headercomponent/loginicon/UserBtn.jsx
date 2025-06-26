@@ -24,8 +24,8 @@ const UserBtn = () => {
   return (
     <div>
       <Dropdown>
-        <MenuButton sx={{ width: 230, height: 70, fontSize: 30 }}>
-          <Person sx={{ fontSize: 45, mr: 1 }} />
+        <MenuButton sx={{ width: 140, height: 40, fontSize: 13 }}>
+          <Person sx={{ fontSize: 25, mr: 1 }} />
           {currentUser ? currentUser.username : 'Sign in...'}
         </MenuButton>
 
@@ -33,14 +33,14 @@ const UserBtn = () => {
           {!currentUser ? (
             <>
               <MenuItem
-                sx={{ fontSize: 33 }}
+                sx={{ fontSize: 13 }}
                 component={LinkBehavior}
                 to="/register"
               >
                 Sign up
               </MenuItem>
               <MenuItem
-                sx={{ fontSize: 33 }}
+                sx={{ fontSize: 13 }}
                 component={LinkBehavior}
                 to="/login"
               >
@@ -53,14 +53,14 @@ const UserBtn = () => {
                 Logout
               </MenuItem>
               <MenuItem
-                sx={{ fontSize: 33 }}
+                sx={{ fontSize: 13 }}
                 component={LinkBehavior}
                 to="/profile"
               >
                 Profile
               </MenuItem>
               <MenuItem
-                sx={{ fontSize: 33 }}
+                sx={{ fontSize: 13 }}
                 component={LinkBehavior}
                 to="/chat"
               >

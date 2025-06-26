@@ -1,208 +1,149 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  fetchAllArticles,
+  likeArticle,
+  addCommentToArticle,
+} from "../../../Redux/ArticleSlice";
+import Card from "@mui/material/Card";
+import CardHeader from "@mui/material/CardHeader";
+import CardContent from "@mui/material/CardContent";
+import CardActions from "@mui/material/CardActions";
+import Avatar from "@mui/material/Avatar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import CommentIcon from "@mui/icons-material/Comment";
+import { red } from "@mui/material/colors";
+import "./ArticleList.scss";
 
 const ArticleList = () => {
-  const [articles, setArticles] = useState([]);
-  const [error, setError] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [commentText, setCommentText] = useState("");
-  const [selectedArticleId, setSelectedArticleId] = useState(null);
-
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { myArticles: articles, loading, error } = useSelector((state) => state.articles);
   const currentUser = useSelector((state) => state.users.currentUser);
 
-  const handleClick = (userId) => {
-    if (userId) {
-      navigate(`/user/${userId}`);
-    }
-  };
+  const [openComments, setOpenComments] = useState(null); // Açıq olan şərhlər bölməsi
+  const [commentInputs, setCommentInputs] = useState({}); // Hər məqaləyə görə yazılan şərhlər
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const res = await axios.get("http://localhost:5050/api/users/articles");
-        setArticles(res.data);
-      } catch (err) {
-        setError("Məqalələr yüklənərkən xəta baş verdi");
-        console.error(err);
-      }
-    };
+    dispatch(fetchAllArticles());
+  }, [dispatch]);
 
-    fetchArticles();
-  }, []);
-
-  const handleLike = async (articleId) => {
+  const handleLike = (articleId) => {
     if (!currentUser) {
-      toast.warning("Əvvəlcə daxil olun!", { position: "top-center", autoClose: 2000 });
+      toast.warning("Əvvəlcə daxil olun!", { autoClose: 2000 });
+      return;
+    }
+    dispatch(likeArticle(articleId));
+  };
+
+  const handleToggleComments = (articleId) => {
+    if (!currentUser) {
+      toast.info("Əvvəlcə daxil olun!", { autoClose: 2000 });
       return;
     }
 
-    try {
-      const res = await axios.patch(
-        `http://localhost:5050/api/users/articles/${articleId}/like`,
-        {},
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
-
-      setArticles((prev) =>
-        prev.map((art) =>
-          art._id === articleId
-            ? { ...art, likes: Array.from({ length: res.data.likes }) }
-            : art
-        )
-      );
-    } catch (err) {
-      toast.error("Bəyənmə zamanı xəta baş verdi", {
-        position: "top-center",
-        autoClose: 2000,
-      });
-    }
+    setOpenComments(prev => (prev === articleId ? null : articleId));
   };
 
-  const openCommentModal = (articleId) => {
-    if (!currentUser) {
-      toast.info("Əvvəlcə daxil olun!", { position: "top-center", autoClose: 2000 });
-      return;
-    }
-    setSelectedArticleId(articleId);
-    setShowModal(true);
+  const handleCommentChange = (articleId, value) => {
+    setCommentInputs(prev => ({
+      ...prev,
+      [articleId]: value,
+    }));
   };
 
-  const submitComment = async () => {
-    if (!commentText.trim()) return;
+  const submitComment = (articleId) => {
+    const text = commentInputs[articleId]?.trim();
+    if (!text) return;
 
-    try {
-      const res = await axios.post(
-        `http://localhost:5050/api/users/articles/${selectedArticleId}/comment`,
-        { text: commentText },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+    dispatch(addCommentToArticle({ articleId, text }))
+      .unwrap()
+      .then(() => {
+        toast.success("Şərh əlavə olundu!", { autoClose: 2000 });
+        setCommentInputs(prev => ({ ...prev, [articleId]: "" }));
+      })
+      .catch(() =>
+        toast.error("Şərh əlavə olunarkən xəta baş verdi", { autoClose: 2000 })
       );
-
-      setArticles((prev) =>
-        prev.map((art) =>
-          art._id === selectedArticleId ? { ...art, comments: res.data.comments } : art
-        )
-      );
-
-      setCommentText("");
-      setShowModal(false);
-      toast.success("Şərh əlavə olundu!", { autoClose: 2000 });
-    } catch (err) {
-      toast.error("Şərh əlavə olunarkən xəta baş verdi", { autoClose: 2000 });
-    }
   };
 
   return (
-    <div>
+    <div style={{ padding: 20 }}>
       <ToastContainer />
-      <h2>Məqalələr</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {loading && <p>Yüklənir...</p>}
+      {error && <Typography color="error">{error}</Typography>}
 
       {articles.map((article) => (
-        <div
-          key={article._id}
-          style={{
-            border: "1px solid #ddd",
-            padding: "10px",
-            marginBottom: "10px",
-          }}
-        >
-          <h3>{article.title}</h3>
-          <p>{article.content}</p>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              marginTop: "10px",
-            }}
-          >
-            {article.author?.photo && (
-              <img
-                src={`http://localhost:5050/photos/${article.author.photo}`}
-                alt={article.author.username}
-                style={{ width: "40px", height: "40px", borderRadius: "50%" }}
+        <Card key={article._id} sx={{ maxWidth: 600, mb: 4 }}>
+          <CardHeader
+            avatar={
+              article.author?.photo ? (
+                <Avatar src={`http://localhost:5050/photos/${article.author.photo}`} />
+              ) : (
+                <Avatar sx={{ bgcolor: red[500] }}>
+                  {article.author?.username?.charAt(0) || "U"}
+                </Avatar>
+              )
+            }
+            title={article.author?.username || "Naməlum"}
+            subheader={new Date(article.createdAt).toLocaleDateString()}
+            onClick={() => navigate(`/user/${article.author?._id}`)}
+            sx={{ cursor: "pointer" }}
+          />
+          <CardContent>
+            <Typography variant="h6">{article.title}</Typography>
+            <Typography variant="body2">{article.content}</Typography>
+          </CardContent>
+          <CardActions disableSpacing>
+            <IconButton onClick={() => handleLike(article._id)}>
+              <FavoriteIcon
+                color={
+                  currentUser &&
+                  Array.isArray(article.likes) &&
+                  article.likes.includes(currentUser._id)
+                    ? "error"
+                    : "inherit"
+                }
               />
-            )}
-            <span
-              onClick={() => handleClick(article.author?._id)}
-              style={{ cursor: "pointer", color: "#4caf50" }}
-            >
-              {article.author?.username || "Naməlum istifadəçi"}
-            </span>
-          </div>
+            </IconButton>
+            <Typography>{article.likes?.length || 0}</Typography>
+            <IconButton onClick={() => handleToggleComments(article._id)}>
+              <CommentIcon />
+            </IconButton>
+          </CardActions>
 
-          <div className="likes" style={{ marginTop: "10px" }}>
-            <button onClick={() => handleLike(article._id)}>
-              <i
-                className={`fa-heart ${
-                  currentUser && article.likes.includes(currentUser._id) ? "fas" : "far"
-                }`}
-                style={{ color: "red" }}
-              ></i>
-            </button>
-            <span>{article.likes.length} bəyənmə</span>
-          </div>
-
-          <div className="comments">
-            <button onClick={() => openCommentModal(article._id)}>💬 Şərh et</button>
-            {article.comments?.map((c, i) => (
-              <div key={i} style={{ marginLeft: "10px", marginTop: "5px" }}>
-                <strong>{c.user?.username || "İstifadəçi"}:</strong> {c.text}
+          {openComments === article._id && (
+            <CardContent className="comments-section">
+              {article.comments?.map((c, i) => (
+                <div key={i} className="comment-item">
+                  <Avatar
+                    alt={c.user?.username}
+                    src={c.user?.photo ? `http://localhost:5050/photos/${c.user.photo}` : undefined}
+                    sx={{ width: 30, height: 30 }}
+                  />
+                  <Typography variant="body2">
+                    <strong>{c.user?.username || "Anonim"}:</strong> {c.text}
+                  </Typography>
+                </div>
+              ))}
+              <div className="comment-form">
+                <textarea
+                  rows="2"
+                  placeholder="Şərhinizi yazın..."
+                  value={commentInputs[article._id] || ""}
+                  onChange={(e) => handleCommentChange(article._id, e.target.value)}
+                />
+                <button onClick={() => submitComment(article._id)}>Göndər</button>
               </div>
-            ))}
-          </div>
-        </div>
+            </CardContent>
+          )}
+        </Card>
       ))}
-
-      {showModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: "0",
-            left: "0",
-            right: "0",
-            bottom: "0",
-            backgroundColor: "rgba(0,0,0,0.6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 999,
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              padding: "20px",
-              borderRadius: "8px",
-              width: "300px",
-            }}
-          >
-            <h4>Şərh yaz</h4>
-            <textarea
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              rows="4"
-              style={{ width: "100%", marginBottom: "10px" }}
-              placeholder="Şərhinizi yazın..."
-            ></textarea>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <button onClick={submitComment}>Göndər</button>
-              <button onClick={() => setShowModal(false)}>Bağla</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
