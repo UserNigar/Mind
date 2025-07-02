@@ -10,6 +10,7 @@ const userSchema = new Schema({
   photo: String,
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  savedArticles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Article" }] // <-- Əlavə etdik
 }, { versionKey: false });
 
 

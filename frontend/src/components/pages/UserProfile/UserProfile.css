@@ -10,6 +10,9 @@
   background: #f9f9f9;
   border-radius: 10px;
   padding: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .profile h2 {
@@ -19,7 +22,6 @@
 }
 .profile .user-info {
   display: flex;
-  flex-wrap: wrap;
   gap: 30px;
 }
 .profile .user-info .user-photo {
@@ -70,6 +72,7 @@
 }
 .profile .user-info .follow-section {
   width: 100%;
+  display: flex;
   margin-top: 25px;
 }
 .profile .user-info .follow-section h3 {

@@ -407,3 +407,57 @@ export const getFollowersAndFollowing = async (req, res) => {
     return res.status(500).json({ message: "Server xətası." });
   }
 };
+
+
+export const toggleSaveArticle = async (req, res) => {
+  const userId = req.user.id;
+  const { id: articleId } = req.params;
+
+  try {
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "İstifadəçi tapılmadı." });
+    }
+
+    const alreadySaved = user.savedArticles.includes(articleId);
+
+    if (alreadySaved) {
+      user.savedArticles = user.savedArticles.filter(
+        (artId) => artId.toString() !== articleId
+      );
+    } else {
+      user.savedArticles.push(articleId);
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      message: alreadySaved ? "Məqalə yaddaşdan çıxarıldı." : "Məqalə yadda saxlanıldı.",
+      savedArticles: user.savedArticles,
+    });
+  } catch (error) {
+    console.error("toggleSaveArticle error:", error);
+    res.status(500).json({ message: "Server xətası." });
+  }
+};
+export const getSavedArticles = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const user = await userModel.findById(userId)
+      .populate({
+        path: "savedArticles",
+        populate: { path: "author", select: "username photo" } // məqalə müəllifini də göstər
+      });
+
+    if (!user) {
+      return res.status(404).json({ message: "İstifadəçi tapılmadı." });
+    }
+
+    res.status(200).json(user.savedArticles);
+  } catch (error) {
+    console.error("getSavedArticles error:", error);
+    res.status(500).json({ message: "Server xətası." });
+  }
+};

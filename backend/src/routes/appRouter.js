@@ -8,6 +8,7 @@ import {
   getArticlesByUserId,
   getFollowersAndFollowing,
   getMessages,
+  getSavedArticles,
   getUserArticles,
   getUserId,
   getUsersService,
@@ -15,6 +16,7 @@ import {
   registerService,
   saveMessage,
   toggleLike,
+  toggleSaveArticle,
   unfollowUser,
   updatePersonalImf,
 } from "../controllers/productController.js";
@@ -47,6 +49,11 @@ appRouter.patch("/articles/:id/like", authMiddleware, toggleLike);
 
 appRouter.post("/articles/:id/comment", authMiddleware, addCommentToArticle);
 
+// Məqaləni yadda saxla və ya çıxart
+appRouter.patch("/articles/:id/save", authMiddleware, toggleSaveArticle);
+
+// İstifadəçinin yadda saxladığı məqalələri gətir
+appRouter.get("/saved-articles", authMiddleware, getSavedArticles);
 
 
 

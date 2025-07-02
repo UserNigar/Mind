@@ -13,8 +13,7 @@ const Navbar = ({ darkMode, setDarkMode }) => {
         <Logo/>
       <Navlist darkMode={darkMode} />
           {/* <CustomizedSwitch darkMode={darkMode} setDarkMode={setDarkMode} /> */}
-        <Wrapper  darkMode={darkMode} setDarkMode={setDarkMode}/>
-
+         <Wrapper  darkMode={darkMode} setDarkMode={setDarkMode}/>
     </div>
   )
 }

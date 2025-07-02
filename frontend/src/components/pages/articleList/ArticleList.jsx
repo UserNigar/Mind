@@ -8,6 +8,10 @@ import {
   likeArticle,
   addCommentToArticle,
 } from "../../../Redux/ArticleSlice";
+import {
+  toggleSaveArticle,
+  fetchSavedArticles,
+} from "../../../Redux/favoriteSlice";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
@@ -17,21 +21,28 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import CommentIcon from "@mui/icons-material/Comment";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import { red } from "@mui/material/colors";
 import "./ArticleList.scss";
 
-const ArticleList = () => {
+const ArticleList = ({ darkMode }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { myArticles: articles, loading, error } = useSelector((state) => state.articles);
+  const { myArticles: articles, loading, error } = useSelector(
+    (state) => state.articles
+  );
   const currentUser = useSelector((state) => state.users.currentUser);
+  const { savedArticles } = useSelector((state) => state.favorite);
 
-  const [openComments, setOpenComments] = useState(null); // Açıq olan şərhlər bölməsi
-  const [commentInputs, setCommentInputs] = useState({}); // Hər məqaləyə görə yazılan şərhlər
+  const [openComments, setOpenComments] = useState(null);
+  const [commentInputs, setCommentInputs] = useState({});
 
   useEffect(() => {
     dispatch(fetchAllArticles());
-  }, [dispatch]);
+    if (currentUser) {
+      dispatch(fetchSavedArticles());
+    }
+  }, [dispatch, currentUser]);
 
   const handleLike = (articleId) => {
     if (!currentUser) {
@@ -41,17 +52,25 @@ const ArticleList = () => {
     dispatch(likeArticle(articleId));
   };
 
+  const handleSave = (articleId) => {
+    if (!currentUser) {
+      toast.warning("Əvvəlcə daxil olun!", { autoClose: 2000 });
+      return;
+    }
+    dispatch(toggleSaveArticle(articleId));
+    toast.success("elave edildi")
+  };
+
   const handleToggleComments = (articleId) => {
     if (!currentUser) {
       toast.info("Əvvəlcə daxil olun!", { autoClose: 2000 });
       return;
     }
-
-    setOpenComments(prev => (prev === articleId ? null : articleId));
+    setOpenComments((prev) => (prev === articleId ? null : articleId));
   };
 
   const handleCommentChange = (articleId, value) => {
-    setCommentInputs(prev => ({
+    setCommentInputs((prev) => ({
       ...prev,
       [articleId]: value,
     }));
@@ -65,7 +84,7 @@ const ArticleList = () => {
       .unwrap()
       .then(() => {
         toast.success("Şərh əlavə olundu!", { autoClose: 2000 });
-        setCommentInputs(prev => ({ ...prev, [articleId]: "" }));
+        setCommentInputs((prev) => ({ ...prev, [articleId]: "" }));
       })
       .catch(() =>
         toast.error("Şərh əlavə olunarkən xəta baş verdi", { autoClose: 2000 })
@@ -73,17 +92,22 @@ const ArticleList = () => {
   };
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className={`article-list-container ${darkMode ? "dark" : "light"}`}>
       <ToastContainer />
       {loading && <p>Yüklənir...</p>}
       {error && <Typography color="error">{error}</Typography>}
 
       {articles.map((article) => (
-        <Card key={article._id} sx={{ maxWidth: 600, mb: 4 }}>
+        <Card
+          key={article._id}
+          className={`article-card ${darkMode ? "dark" : "light"}`}
+        >
           <CardHeader
             avatar={
               article.author?.photo ? (
-                <Avatar src={`http://localhost:5050/photos/${article.author.photo}`} />
+                <Avatar
+                  src={`http://localhost:5050/photos/${article.author.photo}`}
+                />
               ) : (
                 <Avatar sx={{ bgcolor: red[500] }}>
                   {article.author?.username?.charAt(0) || "U"}
@@ -104,8 +128,7 @@ const ArticleList = () => {
               <FavoriteIcon
                 color={
                   currentUser &&
-                  Array.isArray(article.likes) &&
-                  article.likes.includes(currentUser._id)
+                  article.likes?.includes(currentUser._id)
                     ? "error"
                     : "inherit"
                 }
@@ -116,6 +139,18 @@ const ArticleList = () => {
               <CommentIcon />
             </IconButton>
           </CardActions>
+          <CardActions sx={{ justifyContent: "flex-end" }}>
+            <IconButton onClick={() => handleSave(article._id)}>
+              <BookmarkIcon
+                color={
+                  currentUser &&
+                  savedArticles?.some((a) => a._id === article._id)
+                    ? "action" // tünd boz
+                    : "inherit"
+                }
+              />
+            </IconButton>
+          </CardActions>
 
           {openComments === article._id && (
             <CardContent className="comments-section">
@@ -123,7 +158,11 @@ const ArticleList = () => {
                 <div key={i} className="comment-item">
                   <Avatar
                     alt={c.user?.username}
-                    src={c.user?.photo ? `http://localhost:5050/photos/${c.user.photo}` : undefined}
+                    src={
+                      c.user?.photo
+                        ? `http://localhost:5050/photos/${c.user.photo}`
+                        : undefined
+                    }
                     sx={{ width: 30, height: 30 }}
                   />
                   <Typography variant="body2">
@@ -136,9 +175,14 @@ const ArticleList = () => {
                   rows="2"
                   placeholder="Şərhinizi yazın..."
                   value={commentInputs[article._id] || ""}
-                  onChange={(e) => handleCommentChange(article._id, e.target.value)}
+                  onChange={(e) =>
+                    handleCommentChange(article._id, e.target.value)
+                  }
+                  className={darkMode ? "dark-textarea" : ""}
                 />
-                <button onClick={() => submitComment(article._id)}>Göndər</button>
+                <button onClick={() => submitComment(article._id)}>
+                  Göndər
+                </button>
               </div>
             </CardContent>
           )}

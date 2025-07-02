@@ -10,6 +10,9 @@
   background: #f9f9f9;
   border-radius: 10px;
   padding: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
 
   h2 {
@@ -20,7 +23,6 @@
 
   .user-info {
     display: flex;
-    flex-wrap: wrap;
     gap: 30px;
 
     .user-photo {
@@ -79,6 +81,7 @@
 
     .follow-section {
       width: 100%;
+      display: flex;
       margin-top: 25px;
 
       h3 {

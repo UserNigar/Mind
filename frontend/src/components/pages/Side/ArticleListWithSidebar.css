@@ -1,52 +1,76 @@
 .container-layout {
   display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 20px;
+  min-height: 100vh;
+}
+.container-layout.dark-mode {
+  color: #f0f0f0;
+}
+.container-layout.light-mode {
+  background-color: #ffffff;
+  color: #222;
+}
+
+.left-sidebar {
+  width: 350px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 80px;
+  padding: 10px 60px;
+  font-size: 25px;
+  overflow-y: auto;
+  z-index: 100;
+}
+.left-sidebar.sidebar-dark {
+  background-color: inherit;
+  border-right: 1px solid #333;
+}
+.left-sidebar.sidebar-light {
+  background-color: #fffdfd;
+  border-right: 1px solid #ccc;
+}
+.left-sidebar .menu-box ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: #333;
+}
+.left-sidebar .menu-box ul li {
+  color: #1F3B73;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+.left-sidebar .menu-box ul li .menu-link {
+  text-decoration: none;
+  color: inherit;
+  font-weight: bold;
+  display: inline-block;
+}
+.left-sidebar .menu-box ul li .menu-link:hover {
+  text-decoration: underline;
+}
+.left-sidebar .menu-box ul li .toggle-mode-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: inherit;
 }
 
 .article-list {
-  flex: 2;
-}
-
-.right-sidebar {
   flex: 1;
-  position: sticky;
-  top: 20px;
-  height: -moz-fit-content;
-  height: fit-content;
-  background: #f7f7f7;
-  border-radius: 10px;
   padding: 20px;
+  margin-left: 350px;
+  min-height: 100vh;
 }
-.right-sidebar .profile-box {
-  text-align: center;
-  margin-bottom: 20px;
+.article-list.article-dark {
+  background-color: #1a1a1a;
+  color: #f0f0f0;
 }
-.right-sidebar .profile-box .profile-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin-bottom: 10px;
-}
-.right-sidebar .profile-box h3 {
-  margin: 5px 0;
-}
-.right-sidebar .profile-box p {
-  font-size: 14px;
-  color: #555;
-}
-.right-sidebar .menu-box h4 {
-  margin-bottom: 10px;
-}
-.right-sidebar .menu-box ul {
-  list-style: none;
-  padding: 0;
-}
-.right-sidebar .menu-box ul li {
-  padding: 8px 0;
-  cursor: pointer;
-}
-.right-sidebar .menu-box ul li:hover {
-  color: #1976d2;
+.article-list.article-light {
+  background-color: #ffffff;
+  color: #222;
 }/*# sourceMappingURL=ArticleListWithSidebar.css.map */

@@ -1,36 +1,34 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 import "./ArticleListWithSidebar.scss";
 import ArticleList from "../articleList/ArticleList";
-import { Link } from "react-router";
+import CustomizedSwitch from "../../sidebarcomp/Nightbtn/Night";
+import HomeIcon from '@mui/icons-material/Home'; 
+import ShareIcon from '@mui/icons-material/Share';
+import ChatIcon from '@mui/icons-material/Chat';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
-const ArticleListWithSidebar = () => {
+const ArticleListWithSidebar = ({ darkMode, setDarkMode }) => {
   return (
-    <div className="container-layout">
-      <div className="right-sidebar">
-        {/* <div className="profile-box">
-          <img
-            src="/default-avatar.png"
-            alt="user"
-            className="profile-avatar"
-          />
-          <h3>İstifadəçi adı</h3>
-          <p>Profil haqqında qısa info...</p>
-        </div> */}
+    <div className={`container-layout ${darkMode ? "dark-mode" : "light-mode"}`}>
+      <div className={`left-sidebar ${darkMode ? "sidebar-dark" : "sidebar-light"}`}>
         <div className="menu-box">
           <ul>
-            <li><Link to={"/"}> Esas sehife</Link></li>
-            <li><Link to={"/chat"}>➕ Yeni post</Link></li>
-            <li><Link to={"/chat"}>💬 Mesajlar</Link></li>
-            <li><Link>⚙️ Ayarlar</Link></li>
-            <li>⚙️ Ayarlar</li>
-            <li>⚙️ Ayarlar</li>
-            <li>⚙️ Ayarlar</li>
+            <li><Link className="menu-link" to="/"><HomeIcon sx={{ fontSize: 33, color:"#1F3B73" }} /> Əsas səhifə</Link></li>
+            <li><Link className="menu-link" to="/share"><ShareIcon sx={{ fontSize: 33 , color:"#1F3B73" }} /> Yeni post</Link></li>
+            <li><Link className="menu-link" to="/chat"><ChatIcon sx={{ fontSize: 33 , color:"#1F3B73" }} /> Mesajlar</Link></li>
+            <li><Link className="menu-link" to="/profile"><AccountCircleIcon sx={{ fontSize: 33 , color:"#1F3B73" }} /> Profil</Link></li>
+            <li><Link className="menu-link" to ="/editpage"><ManageAccountsIcon sx={{ fontSize: 33 , color:"#1F3B73" }} /> Ayarlar</Link></li>
+            <li><Link className="menu-link" to="/editpage"><BookmarksIcon sx={{ fontSize: 33 , color:"#1F3B73" }} /> Sevimlilər</Link></li>
+            <li><CustomizedSwitch darkMode={darkMode} setDarkMode={setDarkMode} /></li>
           </ul>
         </div>
       </div>
-      <div className="article-list">
-        <ArticleList />
+
+      <div className={`article-list ${darkMode ? "article-dark" : "article-light"}`}>
+        <ArticleList darkMode={darkMode} />
       </div>
     </div>
   );

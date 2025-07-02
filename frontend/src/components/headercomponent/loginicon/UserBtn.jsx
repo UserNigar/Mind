@@ -49,8 +49,11 @@ const UserBtn = () => {
             </>
           ) : (
             <>
-              <MenuItem sx={{ fontSize: 33 }} onClick={handleLogout}>
+              <MenuItem  sx={{ fontSize: 13 }}
+                component={LinkBehavior}
+                to="/login" onClick={handleLogout}>
                 Logout
+                 
               </MenuItem>
               <MenuItem
                 sx={{ fontSize: 13 }}

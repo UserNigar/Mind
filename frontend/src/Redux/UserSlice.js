@@ -75,19 +75,34 @@ export const updateUser = createAsyncThunk(
 export const userSlice = createSlice({
   name: 'users',
   initialState,
-  reducers: {
-    logoutUser: (state) => {
-      state.currentUser = null;
-      state.token = null;
-      state.status = 'idle';
-      state.error = null;
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('token');
-    },
-    clearUserError: (state) => {
-      state.error = null;
-    },
+ reducers: {
+  
+  logoutUser: (state) => {
+    state.currentUser = null;
+    state.token = null;
+    state.status = 'idle';
+    state.error = null;
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
   },
+  clearUserError: (state) => {
+    state.error = null;
+  },
+   setCurrentUser: (state, action) => {
+      state.currentUser = action.payload;
+   },
+  // ⭐ Yeni reducer: localStorage-dən user/token bərpa
+  rehydrateUser: (state) => {
+    const storedUser = localStorage.getItem('currentUser');
+    const storedToken = localStorage.getItem('token');
+
+    if (storedToken && storedUser) {
+      state.token = storedToken;
+      state.currentUser = JSON.parse(storedUser);
+    }
+  },
+},
+
   extraReducers: (builder) => {
     builder
       // getUsers
@@ -169,5 +184,5 @@ export const userSlice = createSlice({
   },
 });
 
-export const { logoutUser, clearUserError } = userSlice.actions;
+export const { logoutUser, clearUserError, rehydrateUser , setCurrentUser } = userSlice.actions;
 export default userSlice.reducer;
