@@ -30,7 +30,7 @@ const Chat = ({ darkMode, setDarkMode }) => {
   const [recentUsers, setRecentUsers] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Typing indicator  const [isTyping, setIsTyping] = useState(false);
+ const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
 
   const [callIncoming, setCallIncoming] = useState(null); // { fromSocketId, name, offer }
