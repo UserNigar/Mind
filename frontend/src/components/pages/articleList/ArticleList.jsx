@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   fetchAllArticles,
   likeArticle,
@@ -12,18 +11,13 @@ import {
   toggleSaveArticle,
   fetchSavedArticles,
 } from "../../../Redux/favoriteSlice";
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardContent from "@mui/material/CardContent";
-import CardActions from "@mui/material/CardActions";
-import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import CommentIcon from "@mui/icons-material/Comment";
-import BookmarkIcon from "@mui/icons-material/Bookmark";
-import { red } from "@mui/material/colors";
-import "./ArticleList.scss";
+import {
+  FaRegCommentDots,
+  FaHeart,
+  FaBookmark,
+} from "react-icons/fa";
+import { FiUser } from "react-icons/fi";
+import "react-toastify/dist/ReactToastify.css";
 
 const ArticleList = ({ darkMode }) => {
   const dispatch = useDispatch();
@@ -58,7 +52,7 @@ const ArticleList = ({ darkMode }) => {
       return;
     }
     dispatch(toggleSaveArticle(articleId));
-    toast.success("elave edildi")
+    toast.success("Əlavə edildi", { autoClose: 2000 });
   };
 
   const handleToggleComments = (articleId) => {
@@ -92,85 +86,100 @@ const ArticleList = ({ darkMode }) => {
   };
 
   return (
-    <div className={`article-list-container ${darkMode ? "dark" : "light"}`}>
+    <div className={`w-full md:w-2/3 px-4 ${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"}`}>
       <ToastContainer />
       {loading && <p>Yüklənir...</p>}
-      {error && <Typography color="error">{error}</Typography>}
+      {error && <p className="text-red-500">{error}</p>}
 
       {articles.map((article) => (
-        <Card
+        <div
           key={article._id}
-          className={`article-card ${darkMode ? "dark" : "light"}`}
+          className={`border rounded-2xl shadow-md mb-6 p-4 transition hover:shadow-lg ${
+            darkMode ? "bg-gray-800" : "bg-gray-100"
+          }`}
         >
-          <CardHeader
-            avatar={
-              article.author?.photo ? (
-                <Avatar
-                  src={`http://localhost:5050/photos/${article.author.photo}`}
-                />
-              ) : (
-                <Avatar sx={{ bgcolor: red[500] }}>
-                  {article.author?.username?.charAt(0) || "U"}
-                </Avatar>
-              )
-            }
-            title={article.author?.username || "Naməlum"}
-            subheader={new Date(article.createdAt).toLocaleDateString()}
+          {/* Author */}
+          <div
+            className="flex items-center gap-3 cursor-pointer"
             onClick={() => navigate(`/user/${article.author?._id}`)}
-            sx={{ cursor: "pointer" }}
-          />
-          <CardContent>
-            <Typography variant="h6">{article.title}</Typography>
-            <Typography variant="body2">{article.content}</Typography>
-          </CardContent>
-          <CardActions disableSpacing>
-            <IconButton onClick={() => handleLike(article._id)}>
-              <FavoriteIcon
-                color={
-                  currentUser &&
-                  article.likes?.includes(currentUser._id)
-                    ? "error"
-                    : "inherit"
-                }
+          >
+            {article.author?.photo ? (
+              <img
+                src={`http://localhost:5050/photos/${article.author.photo}`}
+                alt="avatar"
+                className="w-10 h-10 rounded-full object-cover"
               />
-            </IconButton>
-            <Typography>{article.likes?.length || 0}</Typography>
-            <IconButton onClick={() => handleToggleComments(article._id)}>
-              <CommentIcon />
-            </IconButton>
-          </CardActions>
-          <CardActions sx={{ justifyContent: "flex-end" }}>
-            <IconButton onClick={() => handleSave(article._id)}>
-              <BookmarkIcon
-                color={
-                  currentUser &&
-                  savedArticles?.some((a) => a._id === article._id)
-                    ? "action" // tünd boz
-                    : "inherit"
-                }
-              />
-            </IconButton>
-          </CardActions>
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white">
+                <FiUser />
+              </div>
+            )}
+            <div>
+              <p className="font-semibold">{article.author?.username || "Naməlum"}</p>
+              <p className="text-sm text-gray-400">
+                {new Date(article.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
 
+          {/* Title & Content */}
+          <div className="mt-4">
+            <h2 className="text-lg font-bold">{article.title}</h2>
+            <p className="text-sm mt-1">{article.content}</p>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-4">
+              <button onClick={() => handleLike(article._id)} className="flex items-center gap-1">
+                <FaHeart
+                  className={`text-xl ${
+                    currentUser && article.likes?.includes(currentUser._id)
+                      ? "text-red-500"
+                      : "text-gray-500"
+                  }`}
+                />
+                <span>{article.likes?.length || 0}</span>
+              </button>
+
+              <button onClick={() => handleToggleComments(article._id)} className="flex items-center gap-1">
+                <FaRegCommentDots className="text-xl text-gray-500" />
+              </button>
+            </div>
+
+            <button onClick={() => handleSave(article._id)}>
+              <FaBookmark
+                className={`text-xl ${
+                  currentUser && savedArticles?.some((a) => a._id === article._id)
+                    ? "text-blue-500"
+                    : "text-gray-500"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Comments Section */}
           {openComments === article._id && (
-            <CardContent className="comments-section">
+            <div className="mt-4 space-y-2">
               {article.comments?.map((c, i) => (
-                <div key={i} className="comment-item">
-                  <Avatar
-                    alt={c.user?.username}
+                <div key={i} className="flex items-start gap-2">
+                  <img
                     src={
                       c.user?.photo
                         ? `http://localhost:5050/photos/${c.user.photo}`
-                        : undefined
+                        : "/default-avatar.png"
                     }
-                    sx={{ width: 30, height: 30 }}
+                    alt="avatar"
+                    className="w-8 h-8 rounded-full object-cover"
                   />
-                  <Typography variant="body2">
+                  <p className="text-sm">
                     <strong>{c.user?.username || "Anonim"}:</strong> {c.text}
-                  </Typography>
+                  </p>
                 </div>
               ))}
-              <div className="comment-form">
+
+              {/* Comment Input */}
+              <div className="mt-2">
                 <textarea
                   rows="2"
                   placeholder="Şərhinizi yazın..."
@@ -178,15 +187,22 @@ const ArticleList = ({ darkMode }) => {
                   onChange={(e) =>
                     handleCommentChange(article._id, e.target.value)
                   }
-                  className={darkMode ? "dark-textarea" : ""}
+                  className={`w-full rounded-md p-2 text-sm border focus:outline-none focus:ring ${
+                    darkMode
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-300"
+                  }`}
                 />
-                <button onClick={() => submitComment(article._id)}>
+                <button
+                  onClick={() => submitComment(article._id)}
+                  className="mt-2 bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+                >
                   Göndər
                 </button>
               </div>
-            </CardContent>
+            </div>
           )}
-        </Card>
+        </div>
       ))}
     </div>
   );

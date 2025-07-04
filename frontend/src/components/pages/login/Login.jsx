@@ -3,222 +3,308 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, logoutUser } from '../../../Redux/UserSlice';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import logologin from "../../../assets/mylogo2.png"; // Ensure this path is correct
+import { Eye, EyeOff, User, Lock, LogIn, CheckCircle, XCircle } from 'lucide-react';
+import logologin from "../../../assets/mylogo2.png";
 
-// MessageModal Component - Replaces alert() for better UX
+// Softer Animated Background Component
+const AnimatedBackground = () => {
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 opacity-3"></div>
+      <div className="absolute top-0 left-0 w-full h-full">
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-white opacity-5"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${Math.random() * 3 + 1}px`,
+              height: `${Math.random() * 3 + 1}px`,
+              animation: `pulse ${Math.random() * 3 + 4}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 2}s`
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Softer MessageModal Component
 const MessageModal = ({ message, type, onClose }) => {
-  // Determine background and text color based on message type
-  const bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
-  const textColor = 'text-white';
+  const bgColor = type === 'success' ? 'bg-gradient-to-r from-green-400 to-green-500' : 'bg-gradient-to-r from-red-400 to-red-500';
+  const Icon = type === 'success' ? CheckCircle : XCircle;
 
   return (
-      // Overlay for the modal, covers the entire screen
-      <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-        <div className={`p-8 rounded-xl shadow-2xl ${bgColor} ${textColor} max-w-md w-full text-center transform transition-all duration-300 scale-100 opacity-100`}>
-          {/* Modal title based on type */}
-          <h3 className="text-2xl font-bold mb-4">
-            {type === 'success' ? 'Success!' : 'Error!'}
-          </h3>
-          {/* Message content */}
-          <p className="mb-6 text-lg">{message}</p>
-          {/* Close button */}
-          <button
-              onClick={onClose}
-              className="px-6 py-2 bg-white text-gray-800 font-semibold rounded-full hover:bg-gray-200 transition-colors duration-200 shadow-md"
-          >
-            Close
-          </button>
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+      <div className={`${bgColor} text-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center transform transition-all duration-500 ease-out`}>
+        <div className="flex items-center justify-center mb-4">
+          <Icon size={40} />
         </div>
+        <h3 className="text-xl font-semibold mb-4">
+          {type === 'success' ? 'Uğurlu!' : 'Xəta!'}
+        </h3>
+        <p className="mb-6 text-base opacity-90">{message}</p>
+        <button
+          onClick={onClose}
+          className="px-6 py-2 bg-white text-gray-800 font-medium rounded-full transition-colors duration-300 shadow-sm"
+        >
+          Bağla
+        </button>
       </div>
+    </div>
   );
 };
 
 const Login = ({ darkmode, setDarkMode }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // Destructure status and error from the Redux state
   const { status, error } = useSelector((state) => state.users);
 
-  // State for form input data
   const [formData, setFormData] = useState({
     username: '',
     password: '',
   });
 
-  // State to store the token (if available)
   const [token, setToken] = useState('');
-
-  // State for managing the custom message modal
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
-  const [modalType, setModalType] = useState('success'); // 'success' or 'error'
+  const [modalType, setModalType] = useState('success');
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
     try {
-      // Dispatch the loginUser action
       const result = await dispatch(loginUser(formData));
 
-      // Check if the login was successful
       if (result.meta.requestStatus === 'fulfilled') {
         const userToken = result.payload.token;
-        localStorage.setItem('token', userToken); // Store token in local storage
-        setToken(userToken); // Update token state
+        localStorage.setItem('token', userToken);
+        setToken(userToken);
 
-        // Decode the JWT token to get expiration time
         const decoded = jwtDecode(userToken);
-        const timeLeft = decoded.exp * 1000 - Date.now(); // Time left until token expires
+        const timeLeft = decoded.exp * 1000 - Date.now();
 
-        // Set a timeout to log out the user when the session expires
         setTimeout(() => {
-          dispatch(logoutUser()); // Dispatch logout action
-          localStorage.removeItem('token'); // Remove token from local storage
-          // Show session timeout message
+          dispatch(logoutUser());
+          localStorage.removeItem('token');
           setModalMessage("Sessiya vaxtı bitdi! Zəhmət olmasa yenidən daxil olun.");
           setModalType('error');
           setShowModal(true);
-          navigate('/login'); // Redirect to login page
+          navigate('/login');
         }, timeLeft);
 
-        // Show success message
         setModalMessage('Uğurla daxil oldunuz!');
         setModalType('success');
         setShowModal(true);
-        navigate('/profile'); // Redirect to profile page
+        navigate('/profile');
       } else {
-        // Show error message if login failed
         setModalMessage('İstifadəçi adı və ya şifrə yanlışdır!');
         setModalType('error');
         setShowModal(true);
       }
     } catch (err) {
       console.error("Login error:", err);
-      // Show generic error message for unexpected errors
       setModalMessage('Daxil olarkən bir xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.');
       setModalType('error');
       setShowModal(true);
     }
   };
 
-  // Function to close the modal
   const handleCloseModal = () => {
     setShowModal(false);
     setModalMessage('');
   };
 
   return (
-      // Main section for the login page, adapts to dark/light mode
-      <section
-          id='login-card'
-          className={`min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 
-        ${darkmode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} 
-        transition-colors duration-300 ease-in-out`}
+    <section
+      id='login-card'
+      className={`min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden
+        ${darkmode ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-900'} 
+        transition-all duration-700 ease-out`}
+    >
+      <AnimatedBackground />
+      
+      {/* Dark Mode Toggle */}
+      <button
+        onClick={() => setDarkMode(!darkmode)}
+        className={`fixed top-6 right-6 p-3 rounded-full shadow-md transition-all duration-500 ease-out z-40 ${
+          darkmode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-white'
+        }`}
       >
-        <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-6xl gap-8 p-6 rounded-3xl shadow-xl
-        ${darkmode ? 'bg-gray-800' : 'bg-white'} transition-colors duration-300 ease-in-out">
+        {darkmode ? '☀️' : '🌙'}
+      </button>
 
-          {/* Login Logo Section */}
-          <div className="login-logo flex-shrink-0 mb-8 md:mb-0 md:w-1/2 flex justify-center">
+      <div className={`flex flex-col lg:flex-row items-center justify-center w-full max-w-6xl gap-8 p-8 rounded-3xl shadow-lg backdrop-blur-md border transition-all duration-700 ease-out ${
+        darkmode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-white/30'
+      }`}>
+
+        {/* Login Logo Section */}
+        <div className="login-logo flex-shrink-0 mb-8 lg:mb-0 lg:w-1/2 flex justify-center">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-600 rounded-xl blur-xl opacity-20"></div>
             <img
-                src={logologin}
-                alt="logo"
-                className="h-auto max-h-[400px] w-full max-w-md object-contain rounded-xl shadow-lg"
+              src={logologin}
+              alt="logo"
+              className="relative h-auto max-h-[350px] w-full max-w-md object-contain rounded-xl shadow-lg transition-all duration-500 ease-out"
             />
           </div>
+        </div>
 
-          {/* Login Form Card */}
-          <div className="card-login w-full md:w-1/2 p-8 rounded-2xl text-center
-          ${darkmode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'} shadow-lg border border-gray-200 dark:border-gray-600">
-            <h2 className="text-4xl font-extrabold mb-8
-            ${darkmode ? 'text-white' : 'text-gray-800'}">
+        {/* Login Form Card */}
+        <div className={`card-login w-full lg:w-1/2 p-8 rounded-2xl text-center transition-all duration-700 ease-out ${
+          darkmode ? 'bg-gray-700/60 text-white' : 'bg-white/70 text-gray-800'
+        } shadow-md border backdrop-blur-sm ${
+          darkmode ? 'border-gray-600' : 'border-white/40'
+        }`}>
+          
+          {/* Welcome Header */}
+          <div className="mb-8">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
+              <User size={28} className="text-white" />
+            </div>
+            <h2 className={`text-3xl font-bold mb-2 ${
+              darkmode ? 'text-white' : 'text-gray-800'
+            }`}>
               Salam, Xoş gəlmisiniz 👋🏻
             </h2>
-            <form className="card-logindetail flex flex-col gap-6" onSubmit={handleSubmit}>
-              {/* Username Input */}
+            <p className={`text-base ${darkmode ? 'text-gray-300' : 'text-gray-600'}`}>
+              Hesabınıza daxil olun
+            </p>
+          </div>
+
+          <form className="card-logindetail flex flex-col gap-5" onSubmit={handleSubmit}>
+            {/* Username Input */}
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <User size={18} />
+              </div>
               <input
-                  type="text"
-                  name="username"
-                  placeholder='İstifadəçi adınızı daxil edin'
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                  className="p-3 px-5 border border-gray-300 rounded-full bg-gray-50 text-base
-                transition-all duration-300 ease-in-out shadow-sm
-                focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent
-                dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                type="text"
+                name="username"
+                placeholder='İstifadəçi adınızı daxil edin'
+                value={formData.username}
+                onChange={handleChange}
+                required
+                className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base transition-all duration-500 ease-out shadow-sm focus:outline-none focus:ring-0 ${
+                  darkmode 
+                    ? 'bg-gray-800/40 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400' 
+                    : 'bg-white/60 border-gray-200 text-gray-800 placeholder-gray-500 focus:border-blue-400'
+                } ${formData.username ? 'border-green-300' : ''}`}
               />
-              {/* Password Input */}
+            </div>
+
+            {/* Password Input */}
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <Lock size={18} />
+              </div>
               <input
-                  type="password"
-                  name="password"
-                  placeholder='Şifrənizi daxil edin'
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  className="p-3 px-5 border border-gray-300 rounded-full bg-gray-50 text-base
-                transition-all duration-300 ease-in-out shadow-sm
-                focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent
-                dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder='Şifrənizi daxil edin'
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl text-base transition-all duration-500 ease-out shadow-sm focus:outline-none focus:ring-0 ${
+                  darkmode 
+                    ? 'bg-gray-800/40 border-gray-600 text-white placeholder-gray-400 focus:border-blue-400' 
+                    : 'bg-white/60 border-gray-200 text-gray-800 placeholder-gray-500 focus:border-blue-400'
+                } ${formData.password ? 'border-green-300' : ''}`}
               />
-              {/* Submit Button */}
               <button
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="p-3 rounded-full bg-green-500 text-white text-lg font-semibold cursor-pointer
-                transition-all duration-300 ease-in-out hover:bg-green-600
-                disabled:bg-green-300 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 transition-colors duration-300"
               >
-                {status === 'loading' ? 'Yüklənir...' : 'Login'}
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
-            </form>
+            </div>
 
-            {/* Token Display (Optional) */}
-            {token && (
-                <div className="token-box mt-6 text-left p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 shadow-inner">
-                  <h3 className="text-sm font-medium mb-2
-                ${darkmode ? 'text-gray-300' : 'text-gray-700'}">Token:</h3>
-                  <textarea
-                      readOnly
-                      value={token}
-                      className="w-full h-24 p-3 text-sm rounded-lg border border-gray-300 resize-none
-                  bg-white dark:bg-gray-900 dark:border-gray-700 dark:text-gray-200
-                  focus:outline-none focus:ring-1 focus:ring-blue-400"
-                  />
-                </div>
-            )}
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              className={`w-full py-3 rounded-xl font-semibold text-white text-base transition-all duration-500 ease-out flex items-center justify-center space-x-2 shadow-md ${
+                status === 'loading'
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-500 to-purple-600'
+              }`}
+            >
+              {status === 'loading' ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Yüklənir...</span>
+                </>
+              ) : (
+                <>
+                  <LogIn size={18} />
+                  <span>Daxil ol</span>
+                </>
+              )}
+            </button>
+          </form>
 
-            {/* Error Message Display (handled by modal now, but kept for direct display if needed) */}
-            {error && !showModal && ( // Only show if modal is not active
-                <p className="error text-red-500 mt-4 text-sm font-medium">Xəta: {error}</p>
-            )}
+          {/* Token Display */}
+          {token && (
+            <div className={`token-box mt-6 text-left p-4 rounded-xl border shadow-sm transition-all duration-500 ease-out ${
+              darkmode ? 'bg-gray-800/40 border-gray-600' : 'bg-gray-50/60 border-gray-200'
+            }`}>
+              <h3 className={`text-sm font-medium mb-2 ${
+                darkmode ? 'text-gray-300' : 'text-gray-700'
+              }`}>Token:</h3>
+              <textarea
+                readOnly
+                value={token}
+                className={`w-full h-20 p-3 text-sm rounded-lg border resize-none focus:outline-none focus:ring-1 focus:ring-blue-300 transition-all duration-300 ${
+                  darkmode 
+                    ? 'bg-gray-900/50 border-gray-700 text-gray-200' 
+                    : 'bg-white/70 border-gray-300 text-gray-800'
+                }`}
+              />
+            </div>
+          )}
 
-            {/* Registration Link */}
+          {/* Error Message Display */}
+          {error && !showModal && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm font-medium">Xəta: {error}</p>
+            </div>
+          )}
+
+          {/* Registration Link */}
+          <div className="mt-6">
+            <p className={`text-sm mb-3 ${darkmode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Hesabınız yoxdur?
+            </p>
             <a
-                href="/register"
-                className="block mt-6 text-base font-medium no-underline
-              transition-colors duration-200 hover:text-green-600 hover:underline
-              ${darkmode ? 'text-gray-300' : 'text-gray-700'}"
+              href="/register"
+              className={`inline-block px-6 py-2 rounded-full border font-medium transition-all duration-500 ease-out ${
+                darkmode 
+                  ? 'border-gray-600 text-gray-300' 
+                  : 'border-gray-300 text-gray-700'
+              }`}
             >
               Qeydiyyat
             </a>
           </div>
         </div>
+      </div>
 
-        {/* Render the MessageModal if showModal is true */}
-        {showModal && (
-            <MessageModal
-                message={modalMessage}
-                type={modalType}
-                onClose={handleCloseModal}
-            />
-        )}
-      </section>
+      {/* Render the MessageModal */}
+      {/* {showModal && (
+        <MessageModal
+          message={modalMessage}
+          type={modalType}
+          onClose={handleCloseModal}
+        />
+      )} */}
+    </section>
   );
 };
 
