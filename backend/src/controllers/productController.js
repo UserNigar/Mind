@@ -62,11 +62,18 @@ export const loginService = async (req, res) => {
     }
 
     // JWT yarat – müddət 20 gün (20d)
-    const token = jwt.sign(
-      { user: { id: user._id, username: user.username } },
-      "nodejs",
-      { expiresIn: "1d" }
-    );
+const token = jwt.sign(
+  {
+    user: {
+      id: user._id,
+      username: user.username,
+      role: user.role, // 👈 BUNU ƏLAVƏ ET!
+    }
+  },
+  "nodejs",
+  { expiresIn: "1d" }
+);
+
 
     const { password: _, ...userData } = user._doc;
 
