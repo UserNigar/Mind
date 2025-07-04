@@ -10,7 +10,16 @@ const userSchema = new Schema({
   photo: String,
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  savedArticles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Article" }] // <-- Əlavə etdik
+  savedArticles: [{ type: mongoose.Schema.Types.ObjectId, ref: "Article" }] ,// <-- Əlavə etdik
+    role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user"
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false
+  }
 }, { versionKey: false });
 
 

@@ -8,6 +8,7 @@ import http from "http";  // əlavə
 import "./src/db/Connection.js";
 import appRouter from "./src/routes/appRouter.js";
 import { Server } from "socket.io";  // socket.io-dan import
+import adminRouter from "./src/routes/adminRouter.js";
 
 const app = express();
 
@@ -60,6 +61,8 @@ app.use("/photos", express.static(path.join(__dirname, "public/photos")));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/users", appRouter);
+app.use("/api/admin", adminRouter); // << BURADA ÇAĞIR
+
 
 server.listen(5050, () => {
   console.log(`Server 5050 portunda işləyir`);

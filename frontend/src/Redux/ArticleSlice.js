@@ -86,6 +86,24 @@ export const fetchAllArticles = createAsyncThunk(
   }
 );
 
+export const toggleSave = createAsyncThunk(
+  "articles/toggleSave",
+  async (articleId, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.patch(
+        `http://localhost:5050/api/users/articles/${articleId}/save`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return { articleId, savedBy: res.data.savedBy };
+    } catch (err) {
+      return rejectWithValue("Məqaləni kaydetmək mümkün olmadı.");
+    }
+  }
+);
 
 
 const articleSlice = createSlice({
@@ -143,6 +161,16 @@ extraReducers: (builder) => {
   state.loading = false;
   state.error = action.payload;
 })
+.addCase(toggleSave.fulfilled, (state, action) => {
+  const { articleId, savedBy } = action.payload;
+  state.myArticles = state.myArticles.map((article) =>
+    article._id === articleId ? { ...article, savedBy } : article
+  );
+})
+.addCase(toggleSave.rejected, (state, action) => {
+  state.error = action.payload;
+})
+
 
     .addCase(likeArticle.rejected, (state, action) => {
       state.error = action.payload;

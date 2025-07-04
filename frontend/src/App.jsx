@@ -16,6 +16,8 @@ import { rehydrateUser } from './Redux/UserSlice.js';
 import PrivateRoute from './components/PrivateRouter/PrivateRoute.jsx';
 import EditPage from './components/pages/Editpage/EditPage.jsx';
 import FollowersList from './components/pages/Follower/FollowerList.jsx';
+import SavedArticles from './components/pages/SavedArticle/SavedArticle.jsx';
+import AdminDashboard from './components/admin/Adminpanel.jsx';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -60,6 +62,8 @@ function App() {
           <Route path="followers" element={<FollowersList />} />
           <Route path="article" element={<ArticleList />} />
           <Route path="user/:id" element={<UserDetail />} />
+           <Route path="favorite" element={<SavedArticles />} />
+           <Route path="admin" element={<AdminDashboard />} />
         </Route>
       </Routes>
     </>
