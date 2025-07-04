@@ -109,7 +109,7 @@ const SavedArticles = () => {
 
   return (
     <div className="min-h-screen pt-[85px] pl-[60px] px-6 py-8 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
-      {/* Header */}
+
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -118,7 +118,6 @@ const SavedArticles = () => {
           <h1 className="text-3xl font-bold">Yadda Saxlanılan Məqalələr</h1>
         </div>
 
-        {/* Search and Controls */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -168,14 +167,14 @@ const SavedArticles = () => {
           </div>
         </div>
 
-        {/* Stats */}
+
         <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
           <span>{sortedArticles.length} məqalə tapıldı</span>
           <span>•</span>
         </div>
       </div>
 
-      {/* Articles */}
+
       {sortedArticles.length === 0 ? (
         <div className="text-center py-16">
           <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">

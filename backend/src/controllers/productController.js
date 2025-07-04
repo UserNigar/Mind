@@ -1,4 +1,4 @@
-import { ArticleModel, messageModel, userModel } from "../model/productModel.js";
+import { ArticleModel, messageModel, ReportModel, userModel } from "../model/productModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { updateProfilePhoto } from "../../multer.js";
@@ -48,46 +48,46 @@ export const registerService = async (req, res) => {
 export const loginService = async (req, res) => {
   try {
     const { username, password } = req.body;
-
     const user = await userModel.findOne({ username });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Belə istifadəçi mövcud deyil" });
+    }
+    if (user.isBlocked) {
+      return res.status(403).json({ message: "Sizin hesabınıza məhdudiyyət qoyulub" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
-      return res.status(400).json({ message: "Incorrect password" });
+      return res.status(401).json({ message: "Şifrə yanlışdır" });
     }
 
-    // JWT yarat – müddət 20 gün (20d)
-const token = jwt.sign(
-  {
-    user: {
-      id: user._id,
-      username: user.username,
-      role: user.role, // 👈 BUNU ƏLAVƏ ET!
-    }
-  },
-  "nodejs",
-  { expiresIn: "1d" }
-);
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+    "secretkey",
+      { expiresIn: "1d" }
+    );
 
-
-    const { password: _, ...userData } = user._doc;
-
-    res.status(200).json({
-      message: "Login successful",
-      user: userData,
-      token
+    return res.status(200).json({
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        photo: user.photo,
+        role: user.role,
+        isBlocked: user.isBlocked,
+        followers: user.followers,
+        following: user.following,
+      },
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Login error:", error);
+    return res.status(500).json({ message: "Server xətası" });
   }
 };
+
 
 export const getUserId = async (req, res) => {
   const { id } = req.params;
@@ -111,12 +111,10 @@ export const updatePersonalImf = [
     try {
       const updateData = {};
 
-      // Yeni foto varsa əlavə et
       if (req.file) {
         updateData.photo = req.file.filename;
       }
 
-      // İcazə verilən sahələri yoxla və əlavə et
       const allowedFields = ["email", "name", "surname", "username"];
       for (const field of allowedFields) {
         if (req.body[field]) {
@@ -124,7 +122,6 @@ export const updatePersonalImf = [
         }
       }
 
-      // DB-də yenilə
       const updatedUser = await userModel.findByIdAndUpdate(id, updateData, { new: true }).select("-password");
 
       if (!updatedUser) {
@@ -172,7 +169,7 @@ export const getMessages = async (req, res) => {
 export const createArticle = async (req, res) => {
   try {
     const { title, content } = req.body;
-    const author = req.user.id; // token-dən gələn user id
+    const author = req.user.id;
 
     if (!title || !content) {
       return res.status(400).json({ message: "Title və content tələb olunur" });
@@ -197,7 +194,7 @@ export const getAllArticles = async (req, res) => {
   try {
     const articles = await ArticleModel.find()
       .populate("author", "username photo")
-      .populate("comments.user", "username photo") // <-- Əlavə etdik
+      .populate("comments.user", "username photo")
       .sort({ createdAt: -1 });
 
     res.status(200).json(articles);
@@ -211,7 +208,7 @@ export const getUserArticles = async (req, res) => {
     const userId = req.user.id;
     const articles = await ArticleModel.find({ author: userId })
       .populate("author", "username photo")
-      .populate("comments.user", "username photo"); // <-- Əlavə etdik
+      .populate("comments.user", "username photo");
 
     res.status(200).json(articles);
   } catch (err) {
@@ -227,7 +224,6 @@ export const deleteArticle = async (req, res) => {
       return res.status(404).json({ message: "Məqalə tapılmadı" });
     }
 
-    // Yalnız həmin məqalənin sahibi silə bilsin
     if (article.author.toString() !== req.user.id) {
       return res.status(403).json({ message: "İcazə verilmir" });
     }
@@ -316,8 +312,15 @@ export const addCommentToArticle = async (req, res) => {
 
 export const followUser = async (req, res) => {
   try {
-    const currentUserId = req.user.id; // Auth middleware ilə gəlir
-    const { id: targetUserId } = req.params;
+    const currentUserId = req.user?.id;
+    const { targetUserId } = req.params;
+
+    console.log("currentUserId:", currentUserId);
+    console.log("targetUserId:", targetUserId);
+
+    if (!currentUserId) {
+      return res.status(400).json({ message: "İstifadəçi identifikatoru yoxdur (auth)." });
+    }
 
     if (currentUserId.toString() === targetUserId.toString()) {
       return res.status(400).json({ message: "Özünüzü izləyə bilməzsiniz." });
@@ -352,7 +355,7 @@ export const followUser = async (req, res) => {
 };
 
 
-// İstifadəçini izləmədən çıxarma funksiyası
+
 export const unfollowUser = async (req, res) => {
   try {
     const currentUserId = req.user.id;
@@ -369,7 +372,6 @@ export const unfollowUser = async (req, res) => {
       return res.status(404).json({ message: "İstifadəçi tapılmadı." });
     }
 
-    // İzləmə siyahısından çıxar
     currentUser.following = currentUser.following.filter(
       (uid) => uid.toString() !== targetUserId.toString()
     );
@@ -387,7 +389,6 @@ export const unfollowUser = async (req, res) => {
   }
 };
 
-// İstifadəçinin takipçi və takip olunanlarını gətirən funksiya
 export const getFollowersAndFollowing = async (req, res) => {
   try {
     const { id } = req.params;
@@ -414,8 +415,6 @@ export const getFollowersAndFollowing = async (req, res) => {
     return res.status(500).json({ message: "Server xətası." });
   }
 };
-
-
 export const toggleSaveArticle = async (req, res) => {
   const userId = req.user.id;
   const { id: articleId } = req.params;
@@ -465,6 +464,114 @@ export const getSavedArticles = async (req, res) => {
     res.status(200).json(user.savedArticles);
   } catch (error) {
     console.error("getSavedArticles error:", error);
+    res.status(500).json({ message: "Server xətası." });
+  }
+};
+export const updateMood = async (req, res) => {
+  const { id } = req.params;
+  const { mood } = req.body;
+  const today = new Date().toISOString().slice(0, 10); 
+
+  try {
+    const user = await userModel.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "İstifadəçi tapılmadı." });
+    }
+
+    const index = user.weeklyMood.findIndex(entry =>
+      new Date(entry.date).toISOString().slice(0, 10) === today
+    );
+
+    if (index !== -1) {
+      user.weeklyMood[index].mood = mood;
+    } else {
+      user.weeklyMood.push({ mood });
+    }
+
+
+    if (user.weeklyMood.length > 7) {
+      user.weeklyMood.sort((a, b) => new Date(a.date) - new Date(b.date));
+      user.weeklyMood = user.weeklyMood.slice(-7);
+    }
+
+    await user.save();
+
+    res.status(200).json({ message: "Əhval yeniləndi", weeklyMood: user.weeklyMood });
+  } catch (error) {
+    console.error("updateMood error:", error);
+    res.status(500).json({ message: "Server xətası." });
+  }
+};
+export const getWeeklyMood = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await userModel.findById(id).select("weeklyMood");
+    if (!user) {
+      return res.status(404).json({ message: "İstifadəçi tapılmadı." });
+    }
+
+    res.status(200).json(user.weeklyMood);
+  } catch (error) {
+    console.error("getWeeklyMood error:", error);
+    res.status(500).json({ message: "Əhval məlumatları yüklənə bilmədi." });
+  }
+};
+
+
+export const getLikedArticles = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const likedArticles = await ArticleModel.find({ likes: userId })
+      .populate("author", "username photo")
+      .populate("comments.user", "username photo");
+
+    res.status(200).json(likedArticles);
+  } catch (err) {
+    console.error("getLikedArticles error:", err);
+    res.status(500).json({ message: "Bəyənilən məqalələr yüklənə bilmədi." });
+  }
+};
+
+
+export const reportArticle = async (req, res) => {
+  const reporterId = req.user.id;
+  const { articleId } = req.params;
+  const { reason, customReason } = req.body;
+
+  try {
+    const article = await ArticleModel.findById(articleId);
+    if (!article) {
+      return res.status(404).json({ message: "Məqalə tapılmadı." });
+    }
+
+    const existingReport = await ReportModel.findOne({
+      article: articleId,
+      reporter: reporterId
+    });
+
+    if (existingReport) {
+      return res.status(400).json({ message: "Siz bu məqaləni artıq şikayət etmisiniz." });
+    }
+
+
+    const newReport = new ReportModel({
+      article: articleId,
+      reporter: reporterId,
+      reason,
+      customReason: reason === "Digər" ? customReason : null
+    });
+
+    await newReport.save();
+
+
+    article.reports.push(newReport._id);
+    await article.save();
+
+    res.status(201).json({ message: "Şikayətiniz qeydə alındı." });
+  } catch (error) {
+    console.error("Report error:", error);
     res.status(500).json({ message: "Server xətası." });
   }
 };

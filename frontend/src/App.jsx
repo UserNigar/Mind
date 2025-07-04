@@ -8,7 +8,7 @@ import UserProfile from './components/pages/UserProfile/UserProfile.jsx';
 import { Toaster } from 'react-hot-toast'; 
 import Chat from './components/chat/Chat.jsx';
 import Share from './components/pages/share/Share.jsx';
-import ArticleList from './components/pages/articleList/ArticleList.jsx';
+// import ArticleList from './components/pages/articleList/ArticleList.jsx';
 import UserDetail from './components/pages/userDetail/UserDetail.jsx';
 import ArticleListWithSidebar from './components/pages/Side/Side.jsx';
 import { useDispatch } from 'react-redux';
@@ -18,6 +18,7 @@ import EditPage from './components/pages/Editpage/EditPage.jsx';
 import FollowersList from './components/pages/Follower/FollowerList.jsx';
 import SavedArticles from './components/pages/SavedArticle/SavedArticle.jsx';
 import AdminDashboard from './components/admin/Adminpanel.jsx';
+import UserList from './components/WeeklyMood/UserList.jsx';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -32,7 +33,6 @@ function App() {
       <Toaster position="top-center" reverseOrder={false} />
 
       <Routes>
-        {/* Qorunmayan səhifələr */}
         <Route
           path="/register"
           element={<RegisterForm darkMode={darkMode} setDarkMode={setDarkMode} />}
@@ -42,7 +42,7 @@ function App() {
           element={<Login darkMode={darkMode} setDarkMode={setDarkMode} />}
         />
 
-        {/* Qorumalı bütün Layout və alt səhifələri */}
+
         <Route
           path="/*"
           element={
@@ -56,14 +56,15 @@ function App() {
             element={<ArticleListWithSidebar darkMode={darkMode} setDarkMode={setDarkMode} />}
           />
           <Route path="profile" element={<UserProfile />} />
-          <Route path="chat" element={<Chat />} />
-          <Route path="share" element={<Share />} />
-          <Route path="editpage" element={<EditPage />} />
-          <Route path="followers" element={<FollowersList />} />
-          <Route path="article" element={<ArticleList />} />
-          <Route path="user/:id" element={<UserDetail />} />
-           <Route path="favorite" element={<SavedArticles />} />
-           <Route path="admin" element={<AdminDashboard />} />
+          <Route path="chat" element={<Chat darkMode={darkMode} setDarkMode={setDarkMode}/>} />
+          <Route path="share" element={<Share darkMode={darkMode} setDarkMode={setDarkMode} />} />
+          <Route path="editpage" element={<EditPage darkMode={darkMode} setDarkMode={setDarkMode} />} />
+          <Route path="followers" element={<FollowersList darkMode={darkMode} setDarkMode={setDarkMode}  />} />
+ 
+          <Route path="user/:id" element={<UserDetail darkMode={darkMode} setDarkMode={setDarkMode} />} />
+           <Route path="favorite" element={<SavedArticles  darkMode={darkMode} setDarkMode={setDarkMode} />} />
+           <Route path="mood" element={<UserList  darkMode={darkMode} setDarkMode={setDarkMode} />} />
+           <Route path="admin" element={<AdminDashboard darkMode={darkMode} setDarkMode={setDarkMode} />} />
         </Route>
       </Routes>
     </>

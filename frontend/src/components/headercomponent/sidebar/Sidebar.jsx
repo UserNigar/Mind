@@ -54,9 +54,6 @@ export default function SideBar({ darkMode, setDarkMode }) {
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton>
-                <ListItemIcon>
-                  <CustomizedSwitch darkMode={darkMode} setDarkMode={setDarkMode} />
-                </ListItemIcon>
                 <ListItemText
                   primary="Dark Mode"
                   primaryTypographyProps={{ fontSize: 22, color: darkMode ? 'white' : 'black' }}

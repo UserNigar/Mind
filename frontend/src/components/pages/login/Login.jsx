@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 import { Eye, EyeOff, User, Lock, LogIn, CheckCircle, XCircle } from 'lucide-react';
 import logologin from "../../../assets/mylogo2.png";
 
-// Softer Animated Background Component
+
 const AnimatedBackground = () => {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -31,7 +31,7 @@ const AnimatedBackground = () => {
   );
 };
 
-// Softer MessageModal Component
+
 const MessageModal = ({ message, type, onClose }) => {
   const bgColor = type === 'success' ? 'bg-gradient-to-r from-green-400 to-green-500' : 'bg-gradient-to-r from-red-400 to-red-500';
   const Icon = type === 'success' ? CheckCircle : XCircle;
@@ -77,44 +77,54 @@ const Login = ({ darkmode, setDarkMode }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const result = await dispatch(loginUser(formData));
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const result = await dispatch(loginUser(formData));
 
-      if (result.meta.requestStatus === 'fulfilled') {
-        const userToken = result.payload.token;
-        localStorage.setItem('token', userToken);
-        setToken(userToken);
+    const payload = result.payload;
 
-        const decoded = jwtDecode(userToken);
-        const timeLeft = decoded.exp * 1000 - Date.now();
-
-        setTimeout(() => {
-          dispatch(logoutUser());
-          localStorage.removeItem('token');
-          setModalMessage("Sessiya vaxtı bitdi! Zəhmət olmasa yenidən daxil olun.");
-          setModalType('error');
-          setShowModal(true);
-          navigate('/login');
-        }, timeLeft);
-
-        setModalMessage('Uğurla daxil oldunuz!');
-        setModalType('success');
-        setShowModal(true);
-        navigate('/profile');
-      } else {
-        setModalMessage('İstifadəçi adı və ya şifrə yanlışdır!');
+    if (result.meta.requestStatus === 'fulfilled') {
+      if (payload.user?.isBlocked) {
+        setModalMessage('Sizin istifadəçinizə məhdudiyyət qoyulub!');
         setModalType('error');
         setShowModal(true);
+        return;
       }
-    } catch (err) {
-      console.error("Login error:", err);
-      setModalMessage('Daxil olarkən bir xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.');
+
+      const userToken = payload.token;
+      localStorage.setItem('token', userToken);
+      setToken(userToken);
+
+      const decoded = jwtDecode(userToken);
+      const timeLeft = decoded.exp * 1000 - Date.now();
+
+      setTimeout(() => {
+        dispatch(logoutUser());
+        localStorage.removeItem('token');
+        setModalMessage("Sessiya vaxtı bitdi! Zəhmət olmasa yenidən daxil olun.");
+        setModalType('error');
+        setShowModal(true);
+        navigate('/login');
+      }, timeLeft);
+
+      setModalMessage('Uğurla daxil oldunuz!');
+      setModalType('success');
+      setShowModal(true);
+      navigate('/profile');
+    } else {
+      setModalMessage(payload?.message || 'İstifadəçi adı və ya şifrə yanlışdır!');
       setModalType('error');
       setShowModal(true);
     }
-  };
+  } catch (err) {
+    console.error("Login error:", err);
+    setModalMessage('Daxil olarkən bir xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.');
+    setModalType('error');
+    setShowModal(true);
+  }
+};
+
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -130,7 +140,7 @@ const Login = ({ darkmode, setDarkMode }) => {
     >
       <AnimatedBackground />
       
-      {/* Dark Mode Toggle */}
+
       <button
         onClick={() => setDarkMode(!darkmode)}
         className={`fixed top-6 right-6 p-3 rounded-full shadow-md transition-all duration-500 ease-out z-40 ${
@@ -144,7 +154,7 @@ const Login = ({ darkmode, setDarkMode }) => {
         darkmode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-white/30'
       }`}>
 
-        {/* Login Logo Section */}
+
         <div className="login-logo flex-shrink-0 mb-8 lg:mb-0 lg:w-1/2 flex justify-center">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-600 rounded-xl blur-xl opacity-20"></div>
@@ -156,14 +166,14 @@ const Login = ({ darkmode, setDarkMode }) => {
           </div>
         </div>
 
-        {/* Login Form Card */}
+
         <div className={`card-login w-full lg:w-1/2 p-8 rounded-2xl text-center transition-all duration-700 ease-out ${
           darkmode ? 'bg-gray-700/60 text-white' : 'bg-white/70 text-gray-800'
         } shadow-md border backdrop-blur-sm ${
           darkmode ? 'border-gray-600' : 'border-white/40'
         }`}>
           
-          {/* Welcome Header */}
+
           <div className="mb-8">
             <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
               <User size={28} className="text-white" />
@@ -179,7 +189,6 @@ const Login = ({ darkmode, setDarkMode }) => {
           </div>
 
           <form className="card-logindetail flex flex-col gap-5" onSubmit={handleSubmit}>
-            {/* Username Input */}
             <div className="relative">
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <User size={18} />
@@ -199,7 +208,6 @@ const Login = ({ darkmode, setDarkMode }) => {
               />
             </div>
 
-            {/* Password Input */}
             <div className="relative">
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <Lock size={18} />
@@ -226,7 +234,7 @@ const Login = ({ darkmode, setDarkMode }) => {
               </button>
             </div>
 
-            {/* Submit Button */}
+
             <button
               type="submit"
               disabled={status === 'loading'}
@@ -250,7 +258,6 @@ const Login = ({ darkmode, setDarkMode }) => {
             </button>
           </form>
 
-          {/* Token Display */}
           {token && (
             <div className={`token-box mt-6 text-left p-4 rounded-xl border shadow-sm transition-all duration-500 ease-out ${
               darkmode ? 'bg-gray-800/40 border-gray-600' : 'bg-gray-50/60 border-gray-200'
@@ -270,14 +277,12 @@ const Login = ({ darkmode, setDarkMode }) => {
             </div>
           )}
 
-          {/* Error Message Display */}
           {error && !showModal && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-600 text-sm font-medium">Xəta: {error}</p>
             </div>
           )}
 
-          {/* Registration Link */}
           <div className="mt-6">
             <p className={`text-sm mb-3 ${darkmode ? 'text-gray-400' : 'text-gray-600'}`}>
               Hesabınız yoxdur?
@@ -296,14 +301,12 @@ const Login = ({ darkmode, setDarkMode }) => {
         </div>
       </div>
 
-      {/* Render the MessageModal */}
-      {/* {showModal && (
+      {showModal && (
         <MessageModal
           message={modalMessage}
-          type={modalType}
           onClose={handleCloseModal}
         />
-      )} */}
+      )}
     </section>
   );
 };

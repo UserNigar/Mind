@@ -1,8 +1,7 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-// ✅ 1. İstifadəçini takip et
 export const followUser = createAsyncThunk(
   "follow/followUser",
   async (targetUserId, { dispatch, rejectWithValue, getState }) => {
@@ -21,7 +20,6 @@ export const followUser = createAsyncThunk(
 
       toast.success("İstifadəçi izlənilir ✅");
 
-      // Aktiv istifadəçinin follow məlumatlarını yenilə
       const currentUserId = getState().users.currentUser?._id;
       if (currentUserId) {
         dispatch(fetchFollowData(currentUserId));
@@ -37,7 +35,8 @@ export const followUser = createAsyncThunk(
   }
 );
 
-// ✅ 2. İstifadəçini unfollow et
+
+
 export const unfollowUser = createAsyncThunk(
   "follow/unfollowUser",
   async (targetUserId, { dispatch, rejectWithValue, getState }) => {
@@ -56,7 +55,7 @@ export const unfollowUser = createAsyncThunk(
 
       toast.success("İzləmə dayandırıldı ❌");
 
-      // Aktiv istifadəçinin follow məlumatlarını yenilə
+
       const currentUserId = getState().users.currentUser?._id;
       if (currentUserId) {
         dispatch(fetchFollowData(currentUserId));
@@ -72,7 +71,7 @@ export const unfollowUser = createAsyncThunk(
   }
 );
 
-// ✅ 3. Follow məlumatlarını gətir
+
 export const fetchFollowData = createAsyncThunk(
   "follow/fetchFollowData",
   async (userId, { rejectWithValue }) => {
@@ -95,19 +94,19 @@ export const fetchFollowData = createAsyncThunk(
   }
 );
 
-// 🔧 Slice
+
 const followSlice = createSlice({
   name: "follow",
   initialState: {
-    followers: [],   // səni izləyənlər
-    following: [],   // sənin izlədiklərin
+    followers: [],   
+    following: [],  
     loading: false,
     error: "",
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // 🔄 Fetch follow data
+
       .addCase(fetchFollowData.pending, (state) => {
         state.loading = true;
         state.error = "";
@@ -122,7 +121,7 @@ const followSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ✅ Follow etdikdən sonra follow siyahısına əlavə et
+
       .addCase(followUser.fulfilled, (state, action) => {
         const id = action.payload;
         if (!state.following.includes(id)) {
@@ -130,13 +129,14 @@ const followSlice = createSlice({
         }
       })
 
-      // ✅ Unfollow etdikdən sonra listdən sil
+
       .addCase(unfollowUser.fulfilled, (state, action) => {
         const id = action.payload;
         state.following = state.following.filter((f) => f !== id);
-        state.followers = state.followers.filter((f) => f !== id); // ehtiyac varsa
+        state.followers = state.followers.filter((f) => f !== id); 
       });
   },
 });
 
 export default followSlice.reducer;
+ 

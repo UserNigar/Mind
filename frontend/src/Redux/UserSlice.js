@@ -7,11 +7,12 @@ const initialState = {
   token: null,
   status: 'idle',
   error: null,
+    likedArticles: [], 
 };
 
 const base_URL = 'http://localhost:5050/api/users';
 
-// İstifadəçiləri almaq
+
 export const getUsers = createAsyncThunk('users/getUsers', async () => {
   const res = await axios.get(base_URL);
   return res.data;
@@ -19,7 +20,6 @@ export const getUsers = createAsyncThunk('users/getUsers', async () => {
 
 
 
-// İstifadəçi yaratmaq
 export const createUsers = createAsyncThunk('users/add', async (user, { rejectWithValue }) => {
   try {
     const { data } = await axios.post(base_URL, user, {
@@ -36,11 +36,11 @@ export const createUsers = createAsyncThunk('users/add', async (user, { rejectWi
   }
 });
 
-// Giriş funksiyası (düzəldilmiş)
+
 export const loginUser = createAsyncThunk('users/login', async (user, { rejectWithValue }) => {
   try {
     const { data } = await axios.post('http://localhost:5050/api/users/login', user);
-    return data; // Bütün cavabı qaytar (user və token daxil olmaqla)
+    return data; 
   } catch (error) {
     if (error.response?.data?.message) {
       return rejectWithValue(error.response.data.message);
@@ -58,10 +58,10 @@ export const updateUser = createAsyncThunk(
       const res = await axios.patch(`${base_URL}/${id}`, updatedData, {
         headers: { 
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,  // token burada əlavə olunur
+          Authorization: `Bearer ${token}`,  
         },
       });
-      return res.data.user;  // sən serverdə cavabda `user` olaraq göndərirsən
+      return res.data.user;  
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || 'İstifadəçi yenilənərkən xəta baş verdi'
@@ -70,8 +70,29 @@ export const updateUser = createAsyncThunk(
   }
 );
 
+export const getLikedArticles = createAsyncThunk(
+  'users/getLikedArticles',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { token } = getState().users;
 
-// Slice
+      const res = await axios.get('http://localhost:5050/api/users/liked-articles', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return res.data; 
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Bəyənilmiş məqalələr alınarkən xəta baş verdi"
+      );
+    }
+  }
+);
+
+
+
 export const userSlice = createSlice({
   name: 'users',
   initialState,
@@ -91,7 +112,7 @@ export const userSlice = createSlice({
    setCurrentUser: (state, action) => {
       state.currentUser = action.payload;
    },
-  // ⭐ Yeni reducer: localStorage-dən user/token bərpa
+
   rehydrateUser: (state) => {
     const storedUser = localStorage.getItem('currentUser');
     const storedToken = localStorage.getItem('token');
@@ -105,7 +126,7 @@ export const userSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // getUsers
+ 
       .addCase(getUsers.pending, (state) => {
         state.status = 'loading';
         state.error = null;
@@ -119,7 +140,7 @@ export const userSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      // createUsers
+
       .addCase(createUsers.pending, (state) => {
         state.status = 'loading';
         state.error = null;
@@ -137,7 +158,7 @@ export const userSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      // loginUser (düzgün tokenlə)
+
       .addCase(loginUser.pending, (state) => {
         state.status = 'loading';
         state.error = null;
@@ -154,21 +175,21 @@ export const userSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      // 🔄 updateUser
+
 .addCase(updateUser.pending, (state) => {
   state.status = 'loading';
 })
 .addCase(updateUser.fulfilled, (state, action) => {
   state.status = 'succeeded';
 
-  // Əgər istifadəçi siyahısında varsa onu da yenilə
+  
   const updated = action.payload;
   const index = state.users.findIndex((user) => user._id === updated._id);
   if (index !== -1) {
     state.users[index] = updated;
   }
 
-  // Əgər yenilənən istifadəçi hal-hazırda login olmuşdursa
+ 
   if (state.currentUser?._id === updated._id) {
     state.currentUser = updated;
     localStorage.setItem('currentUser', JSON.stringify(updated));
@@ -179,7 +200,21 @@ export const userSlice = createSlice({
 .addCase(updateUser.rejected, (state, action) => {
   state.status = 'failed';
   state.error = action.payload;
+})
+.addCase(getLikedArticles.pending, (state) => {
+  state.status = 'loading';
+  state.error = null;
+})
+.addCase(getLikedArticles.fulfilled, (state, action) => {
+  state.status = 'succeeded';
+  state.likedArticles = action.payload;
+  state.error = null;
+})
+.addCase(getLikedArticles.rejected, (state, action) => {
+  state.status = 'failed';
+  state.error = action.payload;
 });
+;
       
   },
 });

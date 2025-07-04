@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Məqalələri gətir
+
 export const fetchMyArticles = createAsyncThunk(
   "articles/fetchMyArticles",
   async (_, thunkAPI) => {
@@ -38,7 +38,7 @@ export const likeArticle = createAsyncThunk(
 );
 
 
-// Məqaləni sil
+
 export const deleteArticle = createAsyncThunk(
   "articles/deleteArticle",
   async (id, thunkAPI) => {
@@ -54,7 +54,7 @@ export const deleteArticle = createAsyncThunk(
   }
 );
 
-// Yorum əlavə et
+
 export const addCommentToArticle = createAsyncThunk(
   "articles/addCommentToArticle",
   async ({ articleId, text }, { rejectWithValue }) => {
@@ -73,7 +73,7 @@ export const addCommentToArticle = createAsyncThunk(
     }
   }
 );
-// ✅ Doğru versiya
+
 export const fetchAllArticles = createAsyncThunk(
   "articles/fetchAllArticles",
   async (_, thunkAPI) => {

@@ -1,25 +1,21 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Kaydedilmiş məqalələri gətir
 export const fetchSavedArticles = createAsyncThunk(
   "favorite/fetchSavedArticles",
   async (_, thunkAPI) => {
     const token = localStorage.getItem("token");
     try {
       const res = await axios.get("http://localhost:5050/api/users/saved-articles", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-      return res.data; // saved articles array
+      return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue("Kaydedilmiş məqalələr yüklənə bilmədi.");
     }
   }
 );
 
-// Məqaləni kaydet/kayddan çıxart (toggle save)
 export const toggleSaveArticle = createAsyncThunk(
   "favorite/toggleSaveArticle",
   async (articleId, { rejectWithValue }) => {
@@ -29,12 +25,10 @@ export const toggleSaveArticle = createAsyncThunk(
         `http://localhost:5050/api/users/articles/${articleId}/save`,
         {},
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      return res.data.savedArticles; // yeni saved list qaytarılır
+      return res.data.savedArticles; 
     } catch (err) {
       return rejectWithValue("Məqalə kaydedilə bilmədi.");
     }

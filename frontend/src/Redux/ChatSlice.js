@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Mesajları serverdən gətir
+
 export const getMessagesFromDB = createAsyncThunk(
   "chat/getMessagesFromDB",
   async ({ from, to, token }, thunkAPI) => {
@@ -21,7 +21,6 @@ export const getMessagesFromDB = createAsyncThunk(
   }
 );
 
-// Mesajı serverə göndər
 export const sendMessageToDB = createAsyncThunk(
   "chat/sendMessageToDB",
   async ({ from, to, text, token }, thunkAPI) => {
@@ -42,7 +41,7 @@ export const sendMessageToDB = createAsyncThunk(
   }
 );
 
-// Slice
+
 const chatSlice = createSlice({
   name: "chat",
   initialState: {
@@ -50,21 +49,21 @@ const chatSlice = createSlice({
     messages: [],
     loading: false,
     error: null,
-    unreadCounts: {},    // Yeni mesaj sayları
-    lastMessages: {},    // 🆕 Hər istifadəçi üçün son mesaj
-    readMessages: [],    // 🆕 Oxunan istifadəçilər siyahısı
+    unreadCounts: {},  
+    lastMessages: {},   
+    readMessages: [],    
   },
   reducers: {
     setSelectedUser: (state, action) => {
       state.selectedUser = action.payload;
       state.messages = [];
 
-      // İstifadəçi seçiləndə onun unread mesajları sıfırlanır
+
       if (state.unreadCounts[action.payload]) {
         delete state.unreadCounts[action.payload];
       }
 
-      // Oxundu kimi işarələ
+
       if (!state.readMessages.includes(action.payload)) {
         state.readMessages.push(action.payload);
       }
@@ -75,11 +74,11 @@ const chatSlice = createSlice({
 
       const { from, to, text } = action.payload;
 
-      // Son mesajı saxla (hər iki tərəf üçün)
+   
       state.lastMessages[from] = text;
       state.lastMessages[to] = text;
 
-      // Əgər hazırda söhbət bu istifadəçi ilə deyilsə, unread artır
+
       if (state.selectedUser !== from) {
         if (state.unreadCounts[from]) {
           state.unreadCounts[from]++;
@@ -109,7 +108,7 @@ const chatSlice = createSlice({
       }
     },
 
-    // 🆕 Oxundu kimi işarələmək üçün reducer
+
     markMessagesAsRead: (state, action) => {
       const username = action.payload;
       if (!state.readMessages.includes(username)) {
@@ -138,14 +137,14 @@ const chatSlice = createSlice({
   },
 });
 
-// Exportlar
+
 export const {
   setSelectedUser,
   addMessage,
   clearUnread,
   incrementUnread,
   resetUnread,
-  markMessagesAsRead, // 🆕 export
+  markMessagesAsRead,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

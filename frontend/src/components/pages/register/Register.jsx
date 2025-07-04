@@ -5,7 +5,7 @@ import { createUsers, getUsers } from '../../../Redux/UserSlice';
 import { User, Mail, Lock, ImagePlus, CheckCircle, XCircle } from 'lucide-react';
 import logoregister from "../../../assets/mylogo2.png";
 
-// Animated Background (reuse from Login)
+
 const AnimatedBackground = () => (
   <div className="fixed inset-0 overflow-hidden pointer-events-none">
     <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 opacity-3"></div>
@@ -28,7 +28,7 @@ const AnimatedBackground = () => (
   </div>
 );
 
-// Modal for feedback
+
 const MessageModal = ({ message, type, onClose }) => {
   const bgColor = type === 'success'
     ? 'bg-gradient-to-r from-green-400 to-green-500'
@@ -123,7 +123,7 @@ const RegisterForm = ({ darkmode }) => {
         darkmode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-white/30'
       }`}>
         
-        {/* Left Logo */}
+
         <div className="flex-shrink-0 lg:w-1/2 flex justify-center">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-600 rounded-xl blur-xl opacity-20"></div>
@@ -135,7 +135,7 @@ const RegisterForm = ({ darkmode }) => {
           </div>
         </div>
 
-        {/* Form */}
+
         <div className={`lg:w-1/2 p-8 rounded-2xl text-center shadow-md border backdrop-blur-sm ${
           darkmode ? 'bg-gray-700/60 text-white border-gray-600' : 'bg-white/70 text-gray-800 border-white/40'
         }`}>
@@ -167,7 +167,6 @@ const RegisterForm = ({ darkmode }) => {
               </div>
             ))}
 
-            {/* File Upload */}
             <div className="relative">
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <ImagePlus size={18} />
